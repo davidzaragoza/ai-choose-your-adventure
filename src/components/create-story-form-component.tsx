@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState } from "react"
+import { LoadingComponent } from "./loading-component"
 
 interface CreateStoryFormProps {
   callback: (properties: StoryProperties) => void
@@ -46,6 +47,11 @@ export function CreateStoryFormComponent({ callback }: CreateStoryFormProps) {
 
   function fieldsSet() {
     return title.length > 0 && genre.length > 0
+  }
+  if (loading) {
+    return (
+      <LoadingComponent title="Creando historia" message="Por favor espera mientras se crea la historia." />
+    );
   }
 
   return (
@@ -78,7 +84,7 @@ export function CreateStoryFormComponent({ callback }: CreateStoryFormProps) {
               </SelectContent>
             </Select>
           </div>
-          <Button className="w-full" disabled={!fieldsSet() && !loading} onClick={handleSubmit}>
+          <Button className="w-full" disabled={!fieldsSet() || loading} onClick={handleSubmit}>
             Crear Historia
           </Button>
         </div>

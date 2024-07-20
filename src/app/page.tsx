@@ -7,6 +7,11 @@ import { CreateStoryFormComponent } from "@/components/create-story-form-compone
 export default function Home() {
 
   const [storyProperties, setStoryProperties] = useState<StoryProperties>();
+  const [theme, setTheme] = useState("light")
+
+  function changeTheme() {
+    setTheme(theme === "light" ? "dark" : "light");
+  }
 
   function handleCreateStory(properties: StoryProperties) {
     setStoryProperties(properties);
@@ -14,9 +19,11 @@ export default function Home() {
 
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      {!storyProperties && <CreateStoryFormComponent callback={handleCreateStory} />}
-      {storyProperties && <StoryComponent properties={storyProperties} />}
+    <div className={theme}>
+      <div className="flex justify-center items-center h-screen">
+        {!storyProperties && <CreateStoryFormComponent callback={handleCreateStory} />}
+        {storyProperties && <StoryComponent properties={storyProperties} changeTheme={changeTheme} />}
+      </div>
     </div>
   );
 }
