@@ -36,7 +36,7 @@ export function LoadingComponent({ title, message }: LoadingComponentProps) {
     return () => clearInterval(interval)
   }, [])
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-background">
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-background">
       <div className="bg-card p-8 rounded-lg shadow-lg">
         <div className="flex flex-col items-center space-y-4">
           <div className="text-2xl font-bold text-primary">{title}</div>

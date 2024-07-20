@@ -8,6 +8,7 @@ export default function Home() {
 
   const [storyProperties, setStoryProperties] = useState<StoryProperties>();
   const [theme, setTheme] = useState("light")
+  const [textSize, setTextSize] = useState("text-base")
 
   function changeTheme() {
     setTheme(theme === "light" ? "dark" : "light");
@@ -17,12 +18,13 @@ export default function Home() {
     setStoryProperties(properties);
   }
 
+  const baseClassName = theme + " " + textSize;
 
   return (
-    <div className={theme}>
+    <div className={baseClassName}>
       <div className="flex justify-center items-center h-screen">
         {!storyProperties && <CreateStoryFormComponent callback={handleCreateStory} />}
-        {storyProperties && <StoryComponent properties={storyProperties} changeTheme={changeTheme} />}
+        {storyProperties && <StoryComponent properties={storyProperties} changeTheme={changeTheme} changeTextSize={setTextSize}/>}
       </div>
     </div>
   );

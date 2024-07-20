@@ -23,21 +23,31 @@ import { StoryProperties } from "@/app/models/models"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { LoadingComponent } from "./loading-component"
 
 interface StoryComponentProps {
   properties: StoryProperties
   changeTheme: () => void
+  changeTextSize: (textSize: string) => void
 }
 
-export function StoryComponent({ properties, changeTheme }: StoryComponentProps) {
+export function StoryComponent({ properties, changeTheme, changeTextSize }: StoryComponentProps) {
 
+  const [currentPage, setCurrentPage] = useState(0)
   const [story, setStory] = useState<string[]>([properties.initalStory])
   const [choices, setChoices] = useState<string[]>(properties.initialChoices)
   const [fullStory, setFullStory] = useState(properties.initalStory)
 
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    console.log(story)
+  }, [story])
+
+  useEffect(() => {
+    console.log(currentPage)
+  }, [currentPage])
 
   async function handleChoice(choice: string) {
     setChoices([])
@@ -45,8 +55,15 @@ export function StoryComponent({ properties, changeTheme }: StoryComponentProps)
     const response = await getNextStoryPart(properties.title, properties.genre, fullStory, choice)
     setStory((prev) => [...prev, response.story])
     setFullStory((prev) => prev + '\n' + response.story)
+    setCurrentPage(currentPage + 1)
     setChoices(response.choices)
     setLoading(false)
+  }
+
+  function showVars() {
+    console.log("Current Page: " + currentPage)
+    console.log("Story: " + story)
+    console.log("Choices: " + choices)
   }
 
   if (loading) {
@@ -74,17 +91,17 @@ export function StoryComponent({ properties, changeTheme }: StoryComponentProps)
               <DropdownMenuLabel>Font Size</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={e => changeTextSize("text-base")}>
                   Small
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={e => changeTextSize("text-lg")}>
                   Medium
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={e => changeTextSize("text-xl")}>
                   Large
                 </Button>
               </DropdownMenuItem>
@@ -102,19 +119,29 @@ export function StoryComponent({ properties, changeTheme }: StoryComponentProps)
       <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
         <div className="max-w-3xl mx-auto">
           <div className="prose prose-lg prose-neutral">
-            {story.map((part, index) => (
-              <p key={index}>
-                {part}
-              </p>
-            ))}
+            {story[currentPage]}
           </div>
         </div>
       </main>
+      <div className="flex justify-between px-4 md:px-6 lg:px-8">
+        <Button variant="ghost" size="icon" disabled={currentPage <= 0} onClick={e => setCurrentPage(currentPage - 1)}>
+          <ArrowLeftIcon className="w-5 h-5" />
+          <span className="sr-only">Previous</span>
+        </Button>
+        <Button variant="ghost" size="icon" disabled={currentPage === story.length - 1} onClick={e => setCurrentPage(currentPage + 1)}>
+          <ArrowRightIcon className="w-5 h-5" />
+          <span className="sr-only">Next</span>
+        </Button>
+      </div>
       <footer className="bg-background border-t px-4 py-3 flex justify-center">
-        <div className="w-full grid md:grid-cols-1 gap-4">
-          {choices.map((choice, index) => (
-            <Button key={index} size="lg" onClick={e => handleChoice(choice)}>{choice}</Button>
-          ))}
+        <div className="w-auto grid grid-cols-1 gap-4">
+          {currentPage === story.length - 1 &&
+            choices.map((choice, index) => (
+              <Button key={index} size="lg" onClick={e => handleChoice(choice)} style={{ whiteSpace: 'normal', overflow: 'visible' }}
+              >{choice}</Button>
+            ))
+          }
+          <Button size="lg" onClick={e => showVars()} style={{ whiteSpace: 'normal', overflow: 'visible' }}>Test</Button>
         </div>
       </footer>
     </div>
@@ -157,6 +184,46 @@ function TextIcon(props: any) {
       <path d="M17 6.1H3" />
       <path d="M21 12.1H3" />
       <path d="M15.1 18H3" />
+    </svg>
+  )
+}
+
+function ArrowLeftIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </svg>
+  )
+}
+
+function ArrowRightIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
     </svg>
   )
 }
