@@ -68,7 +68,7 @@ export function CreateStoryFormComponent({ callback }: CreateStoryFormProps) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="genre">Género</Label>
-            <Select id="genre" onValueChange={e => setGenre(e)}>
+            <Select onValueChange={e => setGenre(e)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un género" />
               </SelectTrigger>
