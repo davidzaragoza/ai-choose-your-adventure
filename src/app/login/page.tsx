@@ -1,14 +1,14 @@
-"use client"
-import { signInWithGoogle } from "@/app/actions"
- 
-export function SignInComponent() {
+import { signIn } from "@/auth";
+
+export default function Login() {
   return (
     <form
       action={async () => {
-        await signInWithGoogle()
+        "use server"
+        await signIn("google")
       }}
     >
       <button type="submit">Signin with Google</button>
     </form>
   )
-} 
+}
