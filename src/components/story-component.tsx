@@ -180,7 +180,7 @@ function TextIcon(props: any) {
   )
 }
 
-function ArrowLeftIcon(props) {
+function ArrowLeftIcon(props: any) {
   return (
     <svg
       {...props}
@@ -200,7 +200,7 @@ function ArrowLeftIcon(props) {
   )
 }
 
-function ArrowRightIcon(props) {
+function ArrowRightIcon(props: any) {
   return (
     <svg
       {...props}
