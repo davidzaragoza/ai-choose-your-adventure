@@ -1,14 +1,7 @@
-import { signIn } from "@/auth";
+import { SignInComponent } from "@/components/sign-in-component";
 
 export default function Login() {
   return (
-    <form
-      action={async () => {
-        "use server"
-        await signIn("google")
-      }}
-    >
-      <button type="submit">Signin with Google</button>
-    </form>
+    <SignInComponent />
   )
 }

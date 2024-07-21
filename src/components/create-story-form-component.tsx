@@ -58,7 +58,7 @@ export function CreateStoryFormComponent({ callback }: CreateStoryFormProps) {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle>Crear nueva historia</CardTitle>
-        <CardDescription>Introduce el género de la historia.</CardDescription>
+        <CardDescription>Introduce título y género de la historia.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
