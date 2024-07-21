@@ -1,8 +1,13 @@
 'use server';
 
+import { signIn } from '@/auth';
 import { openai } from '@ai-sdk/openai';
 import { CoreMessage, generateObject } from 'ai';
 import { z } from 'zod';
+
+export async function signInWithGoogle() {
+    signIn('google');
+}
 
 export async function beginStory(title: string, genre: string) {
     const messages: CoreMessage[] = [

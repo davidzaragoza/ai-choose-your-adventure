@@ -3,6 +3,7 @@ import { StoryComponent } from "@/components/story-component";
 import { useState } from "react";
 import { StoryProperties } from "./models/models";
 import { CreateStoryFormComponent } from "@/components/create-story-form-component";
+import { SignInComponent } from "@/components/sing-in-component";
 
 export default function Home() {
 
@@ -26,6 +27,7 @@ export default function Home() {
         {!storyProperties && <CreateStoryFormComponent callback={handleCreateStory} />}
         {storyProperties && <StoryComponent properties={storyProperties} changeTheme={changeTheme} changeTextSize={setTextSize}/>}
       </div>
+      <SignInComponent />
     </div>
   );
 }
