@@ -1,3 +1,7 @@
+import { CreateStoryFormComponent } from "@/components/create-story-form-component";
+
 export default function CreateStory() {
-  return <div>Create Story</div>;
+  return (
+    <CreateStoryFormComponent />
+  )
 }

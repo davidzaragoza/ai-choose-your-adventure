@@ -21,13 +21,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { SignOutComponent } from "./sign-out-component";
+import { StoryDescription } from "@/app/models/models";
+import Link from "next/link";
 
 interface HomeComponentProps {
-  router: AppRouterInstance
+  router: AppRouterInstance;
+  stories: StoryDescription[];
 }
 
-export function HomeComponent({ router }: HomeComponentProps) {
-  
+export function HomeComponent({ router, stories }: HomeComponentProps) {
+  const recentStories = stories.slice(0, 3);
+  const otherStories = stories.slice(3);
+
   return (
     <div className="flex flex-col h-screen">
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
@@ -50,83 +55,40 @@ export function HomeComponent({ router }: HomeComponentProps) {
         <div className="mb-6">
           <h2 className="text-xl font-bold mb-2">Recent Stories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 1</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Action</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 2</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Drama</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 3</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Comedy</div>
-              </CardContent>
-            </Card>
+            {recentStories.map((story) => (
+              <Link key={story.id} href={`/story/${story.id}`}>
+                <Card key={story.id} className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>{story.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-sm text-muted-foreground">
+                      {story.genre}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Updated: {story.lastUpdated.toUTCString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
         <div>
           <h2 className="text-xl font-bold mb-2">All Stories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 4</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Romance</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 5</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Sci-Fi</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 6</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Horror</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 7</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Fantasy</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 8</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Documentary</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>Story Title 9</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">Mystery</div>
-              </CardContent>
-            </Card>
+            {otherStories.map((story) => (
+              <Card key={story.id} className="bg-card text-card-foreground">
+                <CardHeader>
+                  <CardTitle>{story.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground">
+                    {story.genre}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </main>

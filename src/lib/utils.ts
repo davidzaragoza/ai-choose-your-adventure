@@ -9,17 +9,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export async function getSession(
-  router: AppRouterInstance,
-  callback: (session: Session | null) => void
-) {
-  const session = await getSessionAuth();
-  if (!session) {
-    router.replace("/login");
-  }
-  callback(session);
-}
-
 function isErrorResponse(obj: any): obj is ErrorResponse {
   return obj && typeof obj.message === "string" && typeof obj.code === "number";
 }

@@ -3,9 +3,10 @@ export enum ErrorCodes {
 }
 
 export interface StoryDescription {
-    id: string;
-    title: string;
-    genre: string;    
+  id: string;
+  title: string;
+  genre: string;
+  lastUpdated: Date;
 }
 
 export interface StoryProperties {

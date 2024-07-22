@@ -16,15 +16,16 @@ export default function Home() {
     const stories = await getStories();
     checkError(router, stories);
     setStories(stories as StoryDescription[]);
+    console.log(stories);
   }
 
   useEffect(() => {
     init();
   }, []);
 
-  if (stories === null) {
+  if (!stories) {
     return <LoadingComponent title="Cargando" message="Buscando historias" />;
   }
 
-  return <HomeComponent router={router} />;
+  return <HomeComponent router={router} stories={stories}/>;
 }

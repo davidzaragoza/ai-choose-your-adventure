@@ -5,21 +5,37 @@ import { openai } from "@ai-sdk/openai";
 import { CoreMessage, generateObject } from "ai";
 import { z } from "zod";
 import { ErrorCodes, ErrorResponse, StoryDescription } from "./models/models";
+import { sql } from "@vercel/postgres";
 
-export async function getSessionAuth() {
-  const session = await auth();
-  return session;
+function toPostgresArray(arr: string[]): string {
+  return JSON.stringify(arr).replace("[", "{").replace("]", "}");
 }
 
-export async function getStories(): Promise<StoryDescription[] | ErrorResponse> {
+export async function getStories(): Promise<
+  StoryDescription[] | ErrorResponse
+> {
   const session = await auth();
   if (!session) {
     return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
   }
-  return [];
+  const { rows } =
+    await sql`SELECT * FROM ai_choose_story.stories WHERE owner = ${session.user?.email} ORDER BY last_updated DESC`;
+  return rows.map((row) => {
+    return {
+      id: row.id,
+      title: row.title,
+      genre: row.genre,
+      lastUpdated: row.last_updated,
+    };
+  });
 }
 
 export async function beginStory(title: string, genre: string) {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
+  }
+
   const messages: CoreMessage[] = [
     {
       role: "system",
@@ -41,7 +57,14 @@ export async function beginStory(title: string, genre: string) {
     }),
     messages: messages,
   });
-  return object;
+  const storyMessages = toPostgresArray([object.story]);
+  const choices = toPostgresArray(object.choices);
+  const { rows } =
+    await sql`INSERT INTO ai_choose_story.stories (title, genre, story, choices, owner, last_updated) VALUES (${title}, ${genre}, ${storyMessages}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`;
+  if (rows.length !== 0) {
+    return { message: "Error creating story", code: 500 };
+  }
+  return rows[0].id;
 }
 
 export async function getNextStoryPart(
