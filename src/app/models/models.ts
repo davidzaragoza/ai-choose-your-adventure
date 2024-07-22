@@ -17,6 +17,11 @@ export interface Story {
   choices: string[];
 }
 
+export interface NextStoryPart {
+  story: string;
+  choices: string[];
+}
+
 export interface ErrorResponse {
   code: number;
   message: string;

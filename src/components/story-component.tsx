@@ -30,12 +30,10 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import { getStory } from "@/app/actions";
+import { getNextStoryPart, getStory } from "@/app/actions";
 import { checkError } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { Story } from "@/app/models/models";
-
-const STORY_LENGTH_LIMIT = 8;
+import { NextStoryPart, Story } from "@/app/models/models";
 
 interface StoryComponentProps {
   id: string;
@@ -60,6 +58,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
     setStory(response.story)
     setChoices(response.choices)
     setFullStory(response.story.join())
+    setCurrentPage(response.story.length - 1)
     setLoading(false)
   }
 
@@ -72,19 +71,21 @@ export function StoryComponent({ id }: StoryComponentProps) {
   function changeTheme() {}
 
   async function handleChoice(choice: string) {
-    // setChoices([])
-    // setLoading(true)
-    // let response: { story: string, choices: string[] };
+    setChoices([])
+    setLoading(true)
     // if (story.length  > STORY_LENGTH_LIMIT) {
     //   response = await getNextStoryPartAimingForEnd(properties.title, properties.genre, fullStory, choice)
     // } else {
     //   response = await getNextStoryPart(properties.title, properties.genre, fullStory, choice)
     // }
-    // setStory((prev) => [...prev, response.story])
-    // setFullStory((prev) => prev + '\n' + response.story)
-    // setCurrentPage(currentPage + 1)
-    // setChoices(response.choices)
-    // setLoading(false)
+    let response = await getNextStoryPart(id, choice)
+    checkError(router, response)
+    response = response as NextStoryPart
+    setStory((prev) => [...prev, response.story])
+    setFullStory((prev) => prev + '\n' + response.story)
+    setCurrentPage(currentPage + 1)
+    setChoices(response.choices)
+    setLoading(false)
   }
 
   if (loading) {
