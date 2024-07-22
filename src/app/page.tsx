@@ -1,56 +1,40 @@
-"use client"
-import { StoryComponent } from "@/components/story-component";
-import { use, useEffect, useState } from "react";
-import { StoryProperties } from "./models/models";
-import { CreateStoryFormComponent } from "@/components/create-story-form-component";
-import { SignOut } from "@/components/sign-out-component";
-import { getSessionAuth } from "./actions";
+"use client";
+import { HomeComponent } from "@/components/home-component";
+import { LoadingComponent } from "@/components/loading-component";
+import { responseHaveError } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { Session } from "next-auth";
+import { useEffect, useState } from "react";
+import { getStories } from "./actions";
+import { StoryDescription } from "./models/models";
 
 export default function Home() {
+  const router = useRouter();
 
-  const router = useRouter()
+  const [authError, setAuthError] = useState(false);
+  const [stories, setStories] = useState<StoryDescription[]>();
 
-  const [storyProperties, setStoryProperties] = useState<StoryProperties>();
-  const [theme, setTheme] = useState("light")
-  const [textSize, setTextSize] = useState("text-base")
-  const [userSession, setUserSession] = useState<Session | null>(null)
-
-  function changeTheme() {
-    setTheme(theme === "light" ? "dark" : "light");
-  }
-
-  function handleCreateStory(properties: StoryProperties) {
-    setStoryProperties(properties);
-  }
-
-  async function getSession() {
-    const session = await getSessionAuth()
-    if (!session) {
-      router.replace("/login")
+  async function init() {
+    const stories = await getStories();
+    if (responseHaveError(stories, setAuthError)) {
+      return;
     }
-    setUserSession(session)
-    console.log(session);
+    setStories(stories as StoryDescription[]);
   }
 
   useEffect(() => {
-    getSession();
+    init();
   }, []);
 
-  const baseClassName = theme + " " + textSize;
+  useEffect(() => {
+    if (authError) {
+      console.error("Redirecting to login");
+      router.replace("/login");
+    }
+  }, [authError, router]);
 
-  if (userSession === null) { 
-    return <div>Loading...</div>
+  if (!stories) {
+    return <LoadingComponent title="Cargando" message="Buscando historias" />;
   }
 
-  return (
-    <div className={baseClassName}>
-      <div className="flex justify-center items-center h-screen">
-        {!storyProperties && <CreateStoryFormComponent callback={handleCreateStory} />}
-        {storyProperties && <StoryComponent properties={storyProperties} changeTheme={changeTheme} changeTextSize={setTextSize}/>}
-      </div>
-      <SignOut />
-    </div>
-  );
+  return <HomeComponent router={router} stories={stories} />;
 }
