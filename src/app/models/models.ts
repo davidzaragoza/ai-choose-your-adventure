@@ -9,11 +9,12 @@ export interface StoryDescription {
   lastUpdated: Date;
 }
 
-export interface StoryProperties {
+export interface Story {
+  id: string;
   title: string;
-  initalStory: string;
-  initialChoices: string[];
   genre: string;
+  story: string[];
+  choices: string[];
 }
 
 export interface ErrorResponse {

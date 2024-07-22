@@ -1,10 +1,10 @@
 "use client"
 
+import { StoryComponent } from "@/components/story-component";
 import { useParams } from "next/navigation";
 
 export default function Story() {
   const params = useParams<{ id: string }>();
-  console.log(params);
 
-  return <>Story {params.id}</>;
+  return <StoryComponent id={params.id} />;
 }

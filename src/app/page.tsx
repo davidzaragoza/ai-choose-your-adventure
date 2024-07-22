@@ -16,7 +16,6 @@ export default function Home() {
     const stories = await getStories();
     checkError(router, stories);
     setStories(stories as StoryDescription[]);
-    console.log(stories);
   }
 
   useEffect(() => {
