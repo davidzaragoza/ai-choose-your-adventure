@@ -46,7 +46,8 @@ export function StoryComponent({ id }: StoryComponentProps) {
   const [title, setTitle] = useState("");
   const [story, setStory] = useState<string[]>([]);
   const [choices, setChoices] = useState<string[]>([]);
-  const [fullStory, setFullStory] = useState("");
+  const [theme, setTheme] = useState("light")
+  const [textSize, setTextSize] = useState("text-base")
 
   const [loading, setLoading] = useState(true);
 
@@ -54,38 +55,31 @@ export function StoryComponent({ id }: StoryComponentProps) {
     let response = await getStory(id);
     checkError(router, response);
     response = response as Story;
-    setTitle(response.title)
-    setStory(response.story)
-    setChoices(response.choices)
-    setFullStory(response.story.join())
-    setCurrentPage(response.story.length - 1)
-    setLoading(false)
+    setTitle(response.title);
+    setStory(response.story);
+    setChoices(response.choices);
+    setCurrentPage(response.story.length - 1);
+    setLoading(false);
   }
 
   useEffect(() => {
     fetchStory();
   }, []);
 
-  function changeTextSize(size: string) {}
-
-  function changeTheme() {}
+  function changeTheme() {
+    setTheme(theme === "light" ? "dark" : "light");
+  }
 
   async function handleChoice(choice: string) {
-    setChoices([])
-    setLoading(true)
-    // if (story.length  > STORY_LENGTH_LIMIT) {
-    //   response = await getNextStoryPartAimingForEnd(properties.title, properties.genre, fullStory, choice)
-    // } else {
-    //   response = await getNextStoryPart(properties.title, properties.genre, fullStory, choice)
-    // }
-    let response = await getNextStoryPart(id, choice)
-    checkError(router, response)
-    response = response as NextStoryPart
-    setStory((prev) => [...prev, response.story])
-    setFullStory((prev) => prev + '\n' + response.story)
-    setCurrentPage(currentPage + 1)
-    setChoices(response.choices)
-    setLoading(false)
+    setChoices([]);
+    setLoading(true);
+    let response = await getNextStoryPart(id, choice);
+    checkError(router, response);
+    response = response as NextStoryPart;
+    setStory((prev) => [...prev, response.story]);
+    setCurrentPage(currentPage + 1);
+    setChoices(response.choices);
+    setLoading(false);
   }
 
   if (loading) {
@@ -97,102 +91,138 @@ export function StoryComponent({ id }: StoryComponentProps) {
     );
   }
 
+  const baseClassName = theme + " " + textSize;
+
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link href="#" className="text-xl font-bold" prefetch={false}>
-            {title}
-          </Link>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <TextIcon className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Font Size</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button
-                  variant="ghost"
-                  onClick={(e) => changeTextSize("text-base")}
-                >
-                  Small
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button
-                  variant="ghost"
-                  onClick={(e) => changeTextSize("text-lg")}
-                >
-                  Medium
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button
-                  variant="ghost"
-                  onClick={(e) => changeTextSize("text-xl")}
-                >
-                  Large
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => changeTheme()}>
-              <Button variant="ghost" size="icon">
-                <MoonIcon className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-          </DropdownMenu>
-        </div>
-      </header>
-      <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="prose prose-lg prose-neutral text-justify">
-            {story[currentPage]}
+    <div className={baseClassName}>
+      <div className="flex flex-col h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link href="#" className="text-xl font-bold" prefetch={false}>
+              {title}
+            </Link>
           </div>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <TextIcon className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Font Size</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => setTextSize("text-base")}
+                  >
+                    Small
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => setTextSize("text-lg")}
+                  >
+                    Medium
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => setTextSize("text-xl")}
+                  >
+                    Large
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => changeTheme()}>
+                <Button variant="ghost" size="icon">
+                  <MoonIcon className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => router.push("/")}>
+                <Button variant="ghost" size="icon">
+                  <HomeIcon className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+            </DropdownMenu>
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="prose prose-lg prose-neutral text-justify">
+              {story[currentPage]}
+            </div>
+          </div>
+        </main>
+        <div className="flex justify-between px-4 md:px-6 lg:px-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={currentPage <= 0}
+            onClick={(e) => setCurrentPage(currentPage - 1)}
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+            <span className="sr-only">Previous</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={currentPage === story.length - 1}
+            onClick={(e) => setCurrentPage(currentPage + 1)}
+          >
+            <ArrowRightIcon className="w-5 h-5" />
+            <span className="sr-only">Next</span>
+          </Button>
         </div>
-      </main>
-      <div className="flex justify-between px-4 md:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          size="icon"
-          disabled={currentPage <= 0}
-          onClick={(e) => setCurrentPage(currentPage - 1)}
-        >
-          <ArrowLeftIcon className="w-5 h-5" />
-          <span className="sr-only">Previous</span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          disabled={currentPage === story.length - 1}
-          onClick={(e) => setCurrentPage(currentPage + 1)}
-        >
-          <ArrowRightIcon className="w-5 h-5" />
-          <span className="sr-only">Next</span>
-        </Button>
+        <footer className="bg-background border-t px-4 py-3 flex justify-center">
+          <div className="w-auto grid grid-cols-1 gap-4">
+            {currentPage === story.length - 1 &&
+              choices.map((choice, index) => (
+                <Button
+                  key={index}
+                  size="lg"
+                  onClick={(e) => handleChoice(choice)}
+                  style={{ whiteSpace: "normal", overflow: "visible" }}
+                >
+                  {choice}
+                </Button>
+              ))}
+          </div>
+        </footer>
       </div>
-      <footer className="bg-background border-t px-4 py-3 flex justify-center">
-        <div className="w-auto grid grid-cols-1 gap-4">
-          {currentPage === story.length - 1 &&
-            choices.map((choice, index) => (
-              <Button
-                key={index}
-                size="lg"
-                onClick={(e) => handleChoice(choice)}
-                style={{ whiteSpace: "normal", overflow: "visible" }}
-              >
-                {choice}
-              </Button>
-            ))}
-        </div>
-      </footer>
     </div>
+  );
+}
+
+function HomeIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        d="M19 5L4.99998 19M5.00001 5L19 19"
+        stroke="#000000"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
   );
 }
 

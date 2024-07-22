@@ -39,8 +39,12 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { LoadingComponent } from "./loading-component";
+import { checkError } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export function CreateStoryFormComponent() {
+  const router = useRouter();
+  
   const [title, setTitle] = useState<string>("");
   const [genre, setGenre] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -49,8 +53,9 @@ export function CreateStoryFormComponent() {
     if (!fieldsSet()) return;
     setLoading(true);
     const storyId = await createStory(title, genre);
+    checkError(router, storyId);
+    router.push(`/story/${storyId}`);
     setLoading(false);
-    console.log(storyId)
   }
 
   function fieldsSet() {

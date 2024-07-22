@@ -68,7 +68,7 @@ export async function getStory(id: string): Promise<Story | ErrorResponse> {
   return getStoryAndParts(id, session.user?.email!);
 }
 
-export async function beginStory(title: string, genre: string) {
+export async function beginStory(title: string, genre: string): Promise<string | ErrorResponse> {
   const session = await auth();
   if (!session) {
     return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
