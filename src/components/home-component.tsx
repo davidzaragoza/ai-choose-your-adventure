@@ -17,11 +17,10 @@ To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
+import { StoryDescription } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { SignOutComponent } from "./sign-out-component";
-import { StoryDescription } from "@/app/models/models";
 import Link from "next/link";
 
 interface HomeComponentProps {
@@ -38,7 +37,13 @@ export function HomeComponent({ router, stories }: HomeComponentProps) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">My Stories</h1>
         <div className="flex items-center gap-4">
-          <SignOutComponent />
+          <Button
+            variant="ghost"
+            className="rounded-full"
+            onClick={() => router.push("/logout")}
+          >
+            <span>Logout</span>
+          </Button>
         </div>
       </header>
       <main className="flex-1 overflow-y-auto p-6">

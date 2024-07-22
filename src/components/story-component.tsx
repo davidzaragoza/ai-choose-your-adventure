@@ -18,6 +18,8 @@ To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
+import { getNextStoryPart, getStory } from "@/app/actions";
+import { NextStoryPart, Story } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,13 +29,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { responseHaveError } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import { getNextStoryPart, getStory } from "@/app/actions";
-import { checkError } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { NextStoryPart, Story } from "@/app/models/models";
 
 interface StoryComponentProps {
   id: string;
@@ -42,18 +42,22 @@ interface StoryComponentProps {
 export function StoryComponent({ id }: StoryComponentProps) {
   const router = useRouter();
 
+  const [authError, setAuthError] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(0);
   const [title, setTitle] = useState("");
   const [story, setStory] = useState<string[]>([]);
   const [choices, setChoices] = useState<string[]>([]);
-  const [theme, setTheme] = useState("light")
-  const [textSize, setTextSize] = useState("text-base")
+  const [theme, setTheme] = useState("light");
+  const [textSize, setTextSize] = useState("text-base");
 
   const [loading, setLoading] = useState(true);
 
   async function fetchStory() {
     let response = await getStory(id);
-    checkError(router, response);
+    if (responseHaveError(response, setAuthError)) {
+      return
+    }
     response = response as Story;
     setTitle(response.title);
     setStory(response.story);
@@ -66,6 +70,13 @@ export function StoryComponent({ id }: StoryComponentProps) {
     fetchStory();
   }, []);
 
+  useEffect(() => {
+    if (authError) {
+      console.error("Redirecting to login");
+      router.replace("/login");
+    }
+  }, [authError, router]);
+
   function changeTheme() {
     setTheme(theme === "light" ? "dark" : "light");
   }
@@ -74,7 +85,9 @@ export function StoryComponent({ id }: StoryComponentProps) {
     setChoices([]);
     setLoading(true);
     let response = await getNextStoryPart(id, choice);
-    checkError(router, response);
+    if (responseHaveError(response, setAuthError)) {
+      return;
+    }
     response = response as NextStoryPart;
     setStory((prev) => [...prev, response.story]);
     setCurrentPage(currentPage + 1);
@@ -215,13 +228,7 @@ function HomeIcon(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path
-        d="M19 5L4.99998 19M5.00001 5L19 19"
-        stroke="#000000"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
+      <path d="M19 5L4.99998 19M5.00001 5L19 19" />
     </svg>
   );
 }
