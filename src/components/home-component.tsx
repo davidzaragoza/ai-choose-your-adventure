@@ -95,6 +95,27 @@ export function HomeComponent() {
         </div>
         <div className="mb-6">
           <h2 className="text-xl font-bold mb-2">Your Stories</h2>
+          {stories.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="text-center space-y-4">
+                <h2 className="text-2xl font-bold">
+                  No has creado ninguna historia
+                </h2>
+                <p className="text-muted-foreground">
+                  Parece que no has creado ninguna historia por ahora. Puedes
+                  crear una nueva historia para comenzar.
+                </p>
+                <Button
+                  variant="outline"
+                  className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  onClick={() => router.push("/create-story")}
+                >
+                  <PlusIcon className="w-5 h-5" />
+                  <span>Create New Story</span>
+                </Button>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stories.map((story) => (
               <Link key={story.id} href={`/story/${story.id}`}>
