@@ -8,10 +8,6 @@ async function main() {
   console.log("Initializing database...");
   await sql`DROP SCHEMA IF EXISTS ai_choose_story CASCADE`;
   await sql`CREATE SCHEMA ai_choose_story`;
-  await sql`CREATE TABLE ai_choose_story.story_parts (
-    part_id serial primary key,
-    part_text text
-  )`;
   await sql`CREATE TABLE ai_choose_story.stories (
     id serial primary key,
     title text,
@@ -20,10 +16,10 @@ async function main() {
     owner text,
     last_updated timestamp
   )`;
-  await sql`CREATE TABLE ai_choose_story.story_story_parts (
-    story_id integer REFERENCES ai_choose_story.stories(id),
-    part_id integer REFERENCES ai_choose_story.story_parts(part_id),
-    PRIMARY KEY (story_id, part_id)
+  await sql`CREATE TABLE ai_choose_story.story_parts (
+    part_id serial primary key,
+    story_id integer references ai_choose_story.stories(id) ON DELETE CASCADE,
+    part_text text
   )`;
 }
 

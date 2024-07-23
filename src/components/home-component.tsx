@@ -17,20 +17,56 @@ To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
+import { deleteStory, getStories } from "@/app/actions";
 import { StoryDescription } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { responseHaveError } from "@/lib/utils";
+import { Trash2Icon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { LoadingComponent } from "./loading-component";
+export function HomeComponent() {
+  const router = useRouter();
 
-interface HomeComponentProps {
-  router: AppRouterInstance;
-  stories: StoryDescription[];
-}
+  const [authError, setAuthError] = useState(false);
+  const [stories, setStories] = useState<StoryDescription[]>();
 
-export function HomeComponent({ router, stories }: HomeComponentProps) {
-  const recentStories = stories.slice(0, 3);
-  const otherStories = stories.slice(3);
+  async function init() {
+    const stories = await getStories();
+    if (responseHaveError(stories, setAuthError)) {
+      return;
+    }
+    setStories(stories as StoryDescription[]);
+  }
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (authError) {
+      console.error("Redirecting to login");
+      router.replace("/login");
+    }
+  }, [authError, router]);
+
+  async function removeStory(id: string) {
+    const newStories = stories!.filter((story) => story.id !== id);
+    setStories(newStories);
+    await deleteStory(id);
+  }
+
+  if (!stories) {
+    return <LoadingComponent title="Cargando" message="Buscando historias" />;
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -58,9 +94,9 @@ export function HomeComponent({ router, stories }: HomeComponentProps) {
           </Button>
         </div>
         <div className="mb-6">
-          <h2 className="text-xl font-bold mb-2">Recent Stories</h2>
+          <h2 className="text-xl font-bold mb-2">Your Stories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recentStories.map((story) => (
+            {stories.map((story) => (
               <Link key={story.id} href={`/story/${story.id}`}>
                 <Card key={story.id} className="bg-card text-card-foreground">
                   <CardHeader>
@@ -74,25 +110,20 @@ export function HomeComponent({ router, stories }: HomeComponentProps) {
                       Updated: {story.lastUpdated.toUTCString()}
                     </div>
                   </CardContent>
+                  <CardFooter className="flex justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        removeStory(story.id);
+                      }}
+                    >
+                      <Trash2Icon className="w-5 h-5" />
+                    </Button>
+                  </CardFooter>
                 </Card>
               </Link>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h2 className="text-xl font-bold mb-2">All Stories</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {otherStories.map((story) => (
-              <Card key={story.id} className="bg-card text-card-foreground">
-                <CardHeader>
-                  <CardTitle>{story.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-muted-foreground">
-                    {story.genre}
-                  </div>
-                </CardContent>
-              </Card>
             ))}
           </div>
         </div>

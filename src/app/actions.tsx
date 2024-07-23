@@ -35,7 +35,7 @@ async function getStoryAndParts(id: string, owner: string) {
   };
 
   ({ rows } =
-    await sql`SELECT part_text FROM ai_choose_story.story_parts WHERE part_id IN (SELECT part_id FROM ai_choose_story.story_story_parts WHERE story_id = ${id})`);
+    await sql`SELECT part_text FROM ai_choose_story.story_parts WHERE story_id = ${id} ORDER BY part_id ASC`);
   rows.forEach((row) => result.story.push(row.part_text));
 
   return result;
@@ -68,7 +68,10 @@ export async function getStory(id: string): Promise<Story | ErrorResponse> {
   return getStoryAndParts(id, session.user?.email!);
 }
 
-export async function beginStory(title: string, genre: string): Promise<string | ErrorResponse> {
+export async function beginStory(
+  title: string,
+  genre: string
+): Promise<string | ErrorResponse> {
   const session = await auth();
   if (!session) {
     return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
@@ -95,21 +98,14 @@ export async function beginStory(title: string, genre: string): Promise<string |
     }),
     messages: messages,
   });
-  // Assuming each story part is separated by a specific delimiter for simplicity
-  let { rows } =
-    await sql`INSERT INTO ai_choose_story.story_parts (part_text) VALUES (${object.story}) RETURNING part_id`;
 
-  const insertedPart = rows[0].part_id;
   const choices = toPostgresArray(object.choices);
-  ({ rows } =
-    await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`);
+  let { rows } = await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`;
   if (rows.length === 0) {
     return { message: "Error creating story", code: 500 };
   }
   const storyId = rows[0].id;
-
-  // Add the relation in story_story_parts
-  await sql`INSERT INTO ai_choose_story.story_story_parts (story_id, part_id) VALUES (${storyId}, ${insertedPart})`;
+  await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${storyId}, ${object.story})`;
 
   return storyId;
 }
@@ -157,13 +153,10 @@ export async function getNextStoryPart(
     messages: messages,
   });
 
-  const { rows } =
-    await sql`INSERT INTO ai_choose_story.story_parts (part_text) VALUES (${object.story}) RETURNING part_id`;
-  const part_id = rows[0].part_id;
-  await sql`INSERT INTO ai_choose_story.story_story_parts (story_id, part_id) VALUES (${id}, ${part_id})`;
+  await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
     object.choices
-  )}, last_updated = NOW() WHERE id = ${id}`;
+  )}, last_updated = NOW() WHERE id = ${story.id}`;
 
   return {
     story: object.story,
@@ -205,10 +198,7 @@ export async function getNextStoryPartAimingForEnd(
     }),
     messages: messages,
   });
-  const { rows } =
-    await sql`INSERT INTO ai_choose_story.story_parts (part_text) VALUES (${object.story}) RETURNING part_id`;
-  const part_id = rows[0].part_id;
-  await sql`INSERT INTO ai_choose_story.story_story_parts (story_id, part_id) VALUES (${story.id}, ${part_id})`;
+  await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
     object.choices
   )}, last_updated = NOW() WHERE id = ${story.id}`;
@@ -217,4 +207,13 @@ export async function getNextStoryPartAimingForEnd(
     story: object.story,
     choices: object.choices,
   };
+}
+
+export async function deleteStory(id: string) {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
+  }
+
+  await sql`DELETE FROM ai_choose_story.stories WHERE id = ${id} and owner = ${session.user?.email}`;
 }
