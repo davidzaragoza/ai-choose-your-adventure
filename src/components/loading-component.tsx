@@ -22,12 +22,12 @@ To read more about using these font, please visit the Next.js documentation:
 import { useState, useEffect } from "react"
 import { Progress } from "@/components/ui/progress"
 
-interface LoadingComponentProps {
+interface Props {
   title: string
   message: string
 }
 
-export function LoadingComponent({ title, message }: LoadingComponentProps) {
+export function LoadingComponent({ title, message }: Props) {
   const [progress, setProgress] = useState(0)
   useEffect(() => {
     const interval = setInterval(() => {

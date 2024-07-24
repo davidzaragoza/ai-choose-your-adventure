@@ -1,13 +1,16 @@
-"use client";
 import { HomeComponent } from "@/components/home-component";
-import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/dictionaries/dictionaries";
 
-export default function Home() {
-  const params = useParams<{ lang: string }>();
+type Props = {
+  params: { [lang: string]: string };
+};
+
+export default async function Home({ params: { lang } }: Props) {
+  const dict = await getDictionary(lang);
+
   return (
     <>
-      <h1>Welcome</h1>
-      <HomeComponent />
+      <HomeComponent dict={dict} />
     </>
-  )
+  );
 }

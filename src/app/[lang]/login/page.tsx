@@ -1,7 +1,14 @@
+import { getDictionary } from "@/app/dictionaries/dictionaries";
 import { SignInComponent } from "@/components/sign-in-component";
 
-export default function Login() {
+type Props = {
+  params: { [lang: string]: string };
+};
+
+export default async function Login({ params: { lang } }: Props) {
+  const dict = await getDictionary(lang);
+
   return (
-    <SignInComponent />
+    <SignInComponent dict={dict}/>
   )
 }
