@@ -42,9 +42,13 @@ import { LoadingComponent } from "./loading-component";
 import { responseHaveError } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-export function CreateStoryFormComponent() {
+interface Props {
+  dict: any;
+}
+
+export function CreateStoryFormComponent({ dict }: Props) {
   const router = useRouter();
-  
+
   const [authError, setAuthError] = useState(false);
 
   const [title, setTitle] = useState<string>("");
@@ -56,10 +60,10 @@ export function CreateStoryFormComponent() {
     setLoading(true);
     const storyId = await createStory(title, genre);
     if (responseHaveError(storyId, setAuthError)) {
+      setLoading(false);
       return;
     }
     router.push(`/story/${storyId}`);
-    setLoading(false);
   }
 
   function fieldsSet() {
@@ -68,8 +72,8 @@ export function CreateStoryFormComponent() {
   if (loading) {
     return (
       <LoadingComponent
-        title="Creando historia"
-        message="Por favor espera mientras se crea la historia."
+        title={dict["newStory.loading.title"]}
+        message={dict["newStory.loading.message"]}
       />
     );
   }
@@ -78,35 +82,39 @@ export function CreateStoryFormComponent() {
     <div className="flex justify-center items-center h-screen">
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle>Crear nueva historia</CardTitle>
-          <CardDescription>
-            Introduce título y género de la historia.
-          </CardDescription>
+          <CardTitle>{dict["newStory.title"]}</CardTitle>
+          <CardDescription>{dict["newStory.subtitle"]}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title">
+                {dict["newStory.field.title.label"]}
+              </Label>
               <Input
                 id="title"
-                placeholder="Introduce el título de la historia"
+                placeholder={dict["newStory.field.title.placeholder"]}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="genre">Género</Label>
+              <Label htmlFor="genre">
+                {dict["newStory.field.genre.label"]}
+              </Label>
               <Select onValueChange={(e) => setGenre(e)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un género" />
+                  <SelectValue
+                    placeholder={dict["newStory.field.genre.placeholder"]}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="fiction">Ficción</SelectItem>
-                    <SelectItem value="non-fiction">No-Ficción</SelectItem>
-                    <SelectItem value="fantasy">Fanstasia</SelectItem>
-                    <SelectItem value="mystery">Misterio</SelectItem>
-                    <SelectItem value="romance">Romance</SelectItem>
-                    <SelectItem value="sci-fi">Ciencia Ficción</SelectItem>
+                    <SelectItem value="fiction">{dict["story.genre.fiction"]}</SelectItem>
+                    <SelectItem value="non-fiction">{dict["story.genre.non-fiction"]}</SelectItem>
+                    <SelectItem value="fantasy">{dict["story.genre.fantasy"]}</SelectItem>
+                    <SelectItem value="mystery">{dict["story.genre.mystery"]}</SelectItem>
+                    <SelectItem value="romance">{dict["story.genre.romance"]}</SelectItem>
+                    <SelectItem value="sci-fi">{dict["story.genre.sci-fi"]}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

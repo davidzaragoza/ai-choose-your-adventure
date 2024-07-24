@@ -35,11 +35,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
 
-interface StoryComponentProps {
+interface Props {
   id: string;
+  dict: any;
 }
 
-export function StoryComponent({ id }: StoryComponentProps) {
+export function StoryComponent({ id, dict }: Props) {
   const router = useRouter();
 
   const [authError, setAuthError] = useState(false);
@@ -56,7 +57,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
   async function fetchStory() {
     let response = await getStory(id);
     if (responseHaveError(response, setAuthError)) {
-      return
+      return;
     }
     response = response as Story;
     setTitle(response.title);
@@ -72,7 +73,6 @@ export function StoryComponent({ id }: StoryComponentProps) {
 
   useEffect(() => {
     if (authError) {
-      console.error("Redirecting to login");
       router.replace("/login");
     }
   }, [authError, router]);
@@ -98,8 +98,8 @@ export function StoryComponent({ id }: StoryComponentProps) {
   if (loading) {
     return (
       <LoadingComponent
-        title="Continuando historia"
-        message="Por favor espera mientras se crea la historia."
+        title={dict["storyView.loading.title"]}
+        message={dict["storyView.loading.message"]}
       />
     );
   }
@@ -123,14 +123,16 @@ export function StoryComponent({ id }: StoryComponentProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Font Size</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {dict["storyView.menu.fontSize"]}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Button
                     variant="ghost"
                     onClick={(e) => setTextSize("text-base")}
                   >
-                    Small
+                    {dict["storyView.menu.fontSize.small"]}
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -138,7 +140,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
                     variant="ghost"
                     onClick={(e) => setTextSize("text-lg")}
                   >
-                    Medium
+                    {dict["storyView.menu.fontSize.medium"]}
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -146,7 +148,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
                     variant="ghost"
                     onClick={(e) => setTextSize("text-xl")}
                   >
-                    Large
+                    {dict["storyView.menu.fontSize.big"]}
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -182,7 +184,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
             onClick={(e) => setCurrentPage(currentPage - 1)}
           >
             <ArrowLeftIcon className="w-5 h-5" />
-            <span className="sr-only">Previous</span>
+            <span className="sr-only">{dict["storyView.page.previous"]}</span>
           </Button>
           <Button
             variant="ghost"
@@ -191,7 +193,7 @@ export function StoryComponent({ id }: StoryComponentProps) {
             onClick={(e) => setCurrentPage(currentPage + 1)}
           >
             <ArrowRightIcon className="w-5 h-5" />
-            <span className="sr-only">Next</span>
+            <span className="sr-only">{dict["storyView.page.next"]}</span>
           </Button>
         </div>
         <footer className="bg-background border-t px-4 py-3 flex justify-center">
