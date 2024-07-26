@@ -18,7 +18,7 @@ To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
-import { deleteStory, getStories } from "@/app/actions";
+import { deleteStory, getStories, updateStoryPublish } from "@/app/actions";
 import { StoryDescription } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +44,8 @@ import {
 import { SelectTrigger } from "@radix-ui/react-select";
 const isoCountriesLanguages = require("iso-countries-languages");
 import "/node_modules/flag-icons/css/flag-icons.min.css";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
 
 interface Props {
   dict: any;
@@ -90,6 +92,17 @@ export function HomeComponent({ dict, lang }: Props) {
         message={dict["home.loading.message"]}
       />
     );
+  }
+
+  async function updateStory(id: string, value: boolean) {
+    const newStories = stories!.map((story) => {
+      if (story.id === id) {
+        return { ...story, public: value };
+      }
+      return story;
+    });
+    setStories(newStories);
+    await updateStoryPublish(id, value);
   }
 
   return (
@@ -164,7 +177,7 @@ export function HomeComponent({ dict, lang }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stories.map((story) => (
               <Link key={story.id} href={`${lang}/story/${story.id}`}>
-                <Card key={story.id} className="bg-card text-card-foreground">
+                <Card key={story.id} className={story.status === "IN_PROGRESS" ? "bg-card" : "bg-secondary"}>
                   <CardHeader>
                     <CardTitle>{story.title}</CardTitle>
                   </CardHeader>
@@ -174,29 +187,44 @@ export function HomeComponent({ dict, lang }: Props) {
                       {dict[`story.genre.${story.genre}`]}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {dict["home.card.updated"]}:{" "}
+                      {story.status === "IN_PROGRESS" ? dict["home.card.updated"] : dict["story.status.finished"]}:{" "}
                       {story.lastUpdated.toUTCString()}
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        removeStory(story.id);
-                      }}
-                    >
-                      <Trash2Icon className="w-5 h-5" />
-                    </Button>
+                  <CardFooter>
+                    <div className="grid grid-cols-2 w-full">
+                      <div className="flex w-full">
+                        {story.status === "FINISHED" && (
+                          <div className="flex items-center space-x-2">
+                            <Switch id="published-mode" checked={story.public} onClick={(e) => {
+                              e.preventDefault()
+                              updateStory(story.id, !story.public )
+                            }} />
+                            <Label htmlFor="published-mode">{dict["home.story.published"]}</Label>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex justify-end w-full">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeStory(story.id);
+                          }}
+                        >
+                          <Trash2Icon className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
                   </CardFooter>
                 </Card>
               </Link>
             ))}
           </div>
         </div>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }
 

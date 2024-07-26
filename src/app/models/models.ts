@@ -7,6 +7,9 @@ export interface StoryDescription {
   title: string;
   genre: string;
   lastUpdated: Date;
+  status: string;
+  public: boolean;
+  likes: number;
 }
 
 export interface Story {
@@ -15,6 +18,9 @@ export interface Story {
   genre: string;
   story: string[];
   choices: string[];
+  status: string;
+  public: boolean;
+  likes: number;
 }
 
 export interface NextStoryPart {

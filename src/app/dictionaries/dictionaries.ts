@@ -53,6 +53,7 @@ const ENGLISH = {
   "home.button.newStory": "Create New Story",
   "home.loading.title": "Loading Stories",
   "home.loading.message": "Please wait while we fetch the stories",
+  "home.story.published": "Published",
   "story.genre": "Genre",
   "story.genre.fiction": "Fiction",
   "story.genre.non-fiction": "Non-Fiction",
@@ -60,6 +61,7 @@ const ENGLISH = {
   "story.genre.mystery": "Mystery",
   "story.genre.romance": "Romance",
   "story.genre.sci-fi": "Science Fiction",
+  "story.status.finished": "Finished",
   "newStory.title": "Create New Story",
   "newStory.subtitle": "Enter the story's title and genre.",
   "newStory.field.title.label": "Title",
@@ -135,8 +137,10 @@ export async function getDictionary(lang: string) {
     if (isoCountriesLanguages.getSupportedLangs().includes(lang)) {
       var languageInPostgres = await getDictionaryFromPostgres(lang);
       if (languageInPostgres) {
+        console.log("found in postgres", languageInPostgres)
         return languageInPostgres;
       }
+      console.log("not found in postgres")
       var languageInEnglish = isoCountriesLanguages.getLanguage("en", lang);
       const dictionaryFromAI = await getDictionaryFromAI(languageInEnglish);
       await saveDictionary(lang, dictionaryFromAI)

@@ -14,7 +14,10 @@ async function main() {
     genre text,
     choices text[],
     owner text,
-    last_updated timestamp
+    last_updated timestamp,
+    status text,
+    public boolean DEFAULT false,
+    likes integer DEFAULT 0
   )`;
   await sql`CREATE TABLE ai_choose_story.story_parts (
     part_id serial primary key,

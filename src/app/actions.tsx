@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { openai } from "@ai-sdk/openai";
+import { sql } from "@vercel/postgres";
 import { CoreMessage, generateObject } from "ai";
 import { z } from "zod";
 import {
@@ -11,7 +12,6 @@ import {
   Story,
   StoryDescription,
 } from "./models/models";
-import { sql } from "@vercel/postgres";
 const isoCountriesLanguages = require("iso-countries-languages");
 
 const STORY_LENGTH_LIMIT = 8;
@@ -33,6 +33,9 @@ async function getStoryAndParts(id: string, owner: string) {
     genre: rows[0].genre,
     story: [],
     choices: rows[0].choices,
+    status: rows[0].status,
+    public: rows[0].public,
+    likes: rows[0].likes,
   };
 
   ({ rows } =
@@ -40,6 +43,15 @@ async function getStoryAndParts(id: string, owner: string) {
   rows.forEach((row) => result.story.push(row.part_text));
 
   return result;
+}
+
+export async function updateStoryPublish(id: string, value: boolean) {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
+  }
+
+  await sql`UPDATE ai_choose_story.stories SET public = ${value} WHERE id = ${id} and owner = ${session.user?.email}`;
 }
 
 export async function getStories(): Promise<
@@ -57,6 +69,9 @@ export async function getStories(): Promise<
       title: row.title,
       genre: row.genre,
       lastUpdated: row.last_updated,
+      status: row.status,
+      public: row.public,
+      likes: row.likes,
     };
   });
 }
@@ -104,9 +119,11 @@ export async function beginStory(
     messages: messages,
   });
 
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
   const choices = toPostgresArray(object.choices);
+
   let { rows } =
-    await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`;
+    await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated, status) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW(), ${status}) RETURNING *`;
   if (rows.length === 0) {
     return { message: "Error creating story", code: 500 };
   }
@@ -163,10 +180,12 @@ export async function getNextStoryPart(
     messages: messages,
   });
 
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
+
   await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
     object.choices
-  )}, last_updated = NOW() WHERE id = ${story.id}`;
+  )}, last_updated = NOW(), status=${status} WHERE id = ${story.id}`;
 
   return {
     story: object.story,
@@ -210,10 +229,11 @@ export async function getNextStoryPartAimingForEnd(
     }),
     messages: messages,
   });
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
   await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
     object.choices
-  )}, last_updated = NOW() WHERE id = ${story.id}`;
+  )}, last_updated = NOW(), status = ${status} WHERE id = ${story.id}`;
 
   return {
     story: object.story,
