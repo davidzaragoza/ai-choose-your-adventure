@@ -38,9 +38,10 @@ import { LoadingComponent } from "./loading-component";
 interface Props {
   id: string;
   dict: any;
+  lang: string
 }
 
-export function StoryComponent({ id, dict }: Props) {
+export function StoryComponent({ id, dict, lang }: Props) {
   const router = useRouter();
 
   const [authError, setAuthError] = useState(false);
@@ -161,9 +162,9 @@ export function StoryComponent({ id, dict }: Props) {
               </DropdownMenuTrigger>
             </DropdownMenu>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => router.push("/")}>
+              <DropdownMenuTrigger asChild onClick={(e) => router.push(`/${lang}`)}>
                 <Button variant="ghost" size="icon">
-                  <HomeIcon className="w-5 h-5" />
+                  <CloseIcon className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
             </DropdownMenu>
@@ -216,7 +217,7 @@ export function StoryComponent({ id, dict }: Props) {
   );
 }
 
-function HomeIcon(props: any) {
+function CloseIcon(props: any) {
   return (
     <svg
       {...props}

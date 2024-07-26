@@ -1,12 +1,13 @@
-"use client"
-
 import { getDictionary } from "@/app/dictionaries/dictionaries";
 import { StoryComponent } from "@/components/story-component";
-import { useParams } from "next/navigation";
 
-export default function Story() {
-  const params = useParams<{ id: string, lang: string }>();
-  const dict = getDictionary(params.lang);
+type Props = {
+  params: { [lang: string]: string, id: string };
+};
 
-  return <StoryComponent id={params.id} dict={dict}/>;
+export default async function Story({ params: { lang, id } }: Props) {
+  console.log(id)
+  const dict = await getDictionary(lang);
+
+  return <StoryComponent id={id} dict={dict} lang={lang}/>;
 }

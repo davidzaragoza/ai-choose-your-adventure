@@ -34,16 +34,29 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectValue,
+} from "./ui/select";
+import { SelectTrigger } from "@radix-ui/react-select";
+const isoCountriesLanguages = require("iso-countries-languages");
 
 interface Props {
   dict: any;
+  lang: string;
 }
 
-export function HomeComponent({ dict }: Props) {
+export function HomeComponent({ dict, lang }: Props) {
   const router = useRouter();
 
   const [authError, setAuthError] = useState(false);
   const [stories, setStories] = useState<StoryDescription[]>();
+
+  const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
+  const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
 
   async function init() {
     const stories = await getStories();
@@ -70,7 +83,12 @@ export function HomeComponent({ dict }: Props) {
   }
 
   if (!stories) {
-    return <LoadingComponent title={dict["home.loading.title"]} message={dict["home.loading.message"]} />;
+    return (
+      <LoadingComponent
+        title={dict["home.loading.title"]}
+        message={dict["home.loading.message"]}
+      />
+    );
   }
 
   return (
@@ -78,10 +96,29 @@ export function HomeComponent({ dict }: Props) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">{dict["home.stories"]}</h1>
         <div className="flex items-center gap-4">
+          <Select onValueChange={(e) => router.replace(`/${e}`)}>
+            <SelectTrigger>
+              <SelectValue placeholder={currentLanguage} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {allLanguages.map((l) => (
+                  <SelectItem value={l} key={l}>
+                    <div className="flex items-center">
+                      <PlusIcon className="w-5 h-5" />
+                      <span className="ml-2">
+                        {isoCountriesLanguages.getLanguage(lang, l)}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <Button
             variant="ghost"
             className="rounded-full"
-            onClick={() => router.replace("/logout")}
+            onClick={() => router.replace(`${lang}/logout`)}
           >
             <span>{dict["home.button.logout"]}</span>
           </Button>
@@ -92,7 +129,7 @@ export function HomeComponent({ dict }: Props) {
           <Button
             variant="outline"
             className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            onClick={() => router.push("/create-story")}
+            onClick={() => router.push(`${lang}/create-story`)}
           >
             <PlusIcon className="w-5 h-5" />
             <span>{dict["home.button.newStory"]}</span>
@@ -112,8 +149,8 @@ export function HomeComponent({ dict }: Props) {
                 <Button
                   variant="outline"
                   className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  onClick={() => router.push("/create-story")}
-                >
+                  onClick={() => router.push(`${lang}/create-story`)}
+                  >
                   <PlusIcon className="w-5 h-5" />
                   <span>{dict["home.button.newStory"]}</span>
                 </Button>
@@ -122,7 +159,7 @@ export function HomeComponent({ dict }: Props) {
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stories.map((story) => (
-              <Link key={story.id} href={`/story/${story.id}`}>
+              <Link key={story.id} href={`${lang}/story/${story.id}`}>
                 <Card key={story.id} className="bg-card text-card-foreground">
                   <CardHeader>
                     <CardTitle>{story.title}</CardTitle>

@@ -10,7 +10,7 @@ export default async function Home({ params: { lang } }: Props) {
 
   return (
     <>
-      <HomeComponent dict={dict} />
+      <HomeComponent dict={dict} lang={lang} />
     </>
   );
 }

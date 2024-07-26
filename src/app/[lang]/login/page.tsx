@@ -9,6 +9,6 @@ export default async function Login({ params: { lang } }: Props) {
   const dict = await getDictionary(lang);
 
   return (
-    <SignInComponent dict={dict}/>
+    <SignInComponent dict={dict} lang={lang}/>
   )
 }

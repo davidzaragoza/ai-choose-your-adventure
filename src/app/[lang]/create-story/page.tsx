@@ -9,6 +9,6 @@ export default async function CreateStory({ params: { lang } }: Props) {
   const dict = await getDictionary(lang);
 
   return (
-    <CreateStoryFormComponent dict={dict}/>
+    <CreateStoryFormComponent dict={dict} lang={lang}/>
   )
 }

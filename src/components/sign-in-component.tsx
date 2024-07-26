@@ -22,9 +22,10 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   dict: any;
+  lang: string
 }
 
-export function SignInComponent({ dict }: Props) {
+export function SignInComponent({ dict, lang }: Props) {
   return (
     <div className="mx-auto max-w-md space-y-8 py-12">
       <div className="text-center">
@@ -35,7 +36,7 @@ export function SignInComponent({ dict }: Props) {
         <form
           action={async () => {
             "use server";
-            await signIn("google", { redirectTo: "/" });
+            await signIn("google", { redirectTo: `/${lang}` });
           }}
         >
           <Button variant="outline" type="submit" className="w-full">

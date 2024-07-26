@@ -44,9 +44,10 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   dict: any;
+  lang: string
 }
 
-export function CreateStoryFormComponent({ dict }: Props) {
+export function CreateStoryFormComponent({ dict, lang }: Props) {
   const router = useRouter();
 
   const [authError, setAuthError] = useState(false);
@@ -63,7 +64,7 @@ export function CreateStoryFormComponent({ dict }: Props) {
       setLoading(false);
       return;
     }
-    router.push(`/story/${storyId}`);
+    router.push(`/${lang}/story/${storyId}`);
   }
 
   function fieldsSet() {
