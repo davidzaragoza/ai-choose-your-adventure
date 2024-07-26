@@ -43,6 +43,7 @@ import {
 } from "./ui/select";
 import { SelectTrigger } from "@radix-ui/react-select";
 const isoCountriesLanguages = require("iso-countries-languages");
+import "/node_modules/flag-icons/css/flag-icons.min.css";
 
 interface Props {
   dict: any;
@@ -105,7 +106,7 @@ export function HomeComponent({ dict, lang }: Props) {
                 {allLanguages.map((l) => (
                   <SelectItem value={l} key={l}>
                     <div className="flex items-center">
-                      <PlusIcon className="w-5 h-5" />
+                      <span className={`fi fi-${l}`}></span>
                       <span className="ml-2">
                         {isoCountriesLanguages.getLanguage(lang, l)}
                       </span>

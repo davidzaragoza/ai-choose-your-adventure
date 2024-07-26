@@ -6,7 +6,6 @@ type Props = {
 };
 
 export default async function Story({ params: { lang, id } }: Props) {
-  console.log(id)
   const dict = await getDictionary(lang);
 
   return <StoryComponent id={id} dict={dict} lang={lang}/>;
