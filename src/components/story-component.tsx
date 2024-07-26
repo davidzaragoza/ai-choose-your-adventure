@@ -175,6 +175,19 @@ export function StoryComponent({ id, dict, lang }: Props) {
             <div className="prose prose-lg prose-neutral text-justify">
               {story[currentPage]}
             </div>
+            <div className="w-auto grid grid-cols-1 gap-4 mt-4">
+              {currentPage === story.length - 1 &&
+                choices.map((choice, index) => (
+                  <Button
+                    key={index}
+                    size="lg"
+                    onClick={(e) => handleChoice(choice)}
+                    style={{ whiteSpace: "normal", overflow: "visible" }}
+                  >
+                    {choice}
+                  </Button>
+                ))}
+            </div>
           </div>
         </main>
         <div className="flex justify-between px-4 md:px-6 lg:px-8">
@@ -198,19 +211,6 @@ export function StoryComponent({ id, dict, lang }: Props) {
           </Button>
         </div>
         <footer className="bg-background border-t px-4 py-3 flex justify-center">
-          <div className="w-auto grid grid-cols-1 gap-4">
-            {currentPage === story.length - 1 &&
-              choices.map((choice, index) => (
-                <Button
-                  key={index}
-                  size="lg"
-                  onClick={(e) => handleChoice(choice)}
-                  style={{ whiteSpace: "normal", overflow: "visible" }}
-                >
-                  {choice}
-                </Button>
-              ))}
-          </div>
         </footer>
       </div>
     </div>

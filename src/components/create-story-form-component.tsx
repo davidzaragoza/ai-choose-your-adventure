@@ -125,7 +125,7 @@ export function CreateStoryFormComponent({ dict, lang }: Props) {
               disabled={!fieldsSet() || loading}
               onClick={handleSubmit}
             >
-              Crear Historia
+              {dict["newStory.button.create"]}
             </Button>
           </div>
         </CardContent>
