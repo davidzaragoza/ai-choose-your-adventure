@@ -85,7 +85,7 @@ export function StoryComponent({ id, dict, lang }: Props) {
   async function handleChoice(choice: string) {
     setChoices([]);
     setLoading(true);
-    let response = await getNextStoryPart(id, choice);
+    let response = await getNextStoryPart(id, choice, lang);
     if (responseHaveError(response, setAuthError)) {
       return;
     }

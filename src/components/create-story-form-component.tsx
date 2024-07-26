@@ -59,7 +59,7 @@ export function CreateStoryFormComponent({ dict, lang }: Props) {
   async function handleSubmit() {
     if (!fieldsSet()) return;
     setLoading(true);
-    const storyId = await createStory(title, genre);
+    const storyId = await createStory(title, genre, lang);
     if (responseHaveError(storyId, setAuthError)) {
       setLoading(false);
       return;

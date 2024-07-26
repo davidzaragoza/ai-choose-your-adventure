@@ -97,9 +97,12 @@ export function HomeComponent({ dict, lang }: Props) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">{dict["home.stories"]}</h1>
         <div className="flex items-center gap-4">
-          <Select onValueChange={(e) => router.replace(`/${e}`)}>
+          <Select onValueChange={(e) => router.replace(`/${e}`)} >
             <SelectTrigger>
-              <SelectValue placeholder={currentLanguage} />
+              <span className={`fi fi-${lang}`}></span>
+              <span className="ml-2">
+                {currentLanguage}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -151,7 +154,7 @@ export function HomeComponent({ dict, lang }: Props) {
                   variant="outline"
                   className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   onClick={() => router.push(`${lang}/create-story`)}
-                  >
+                >
                   <PlusIcon className="w-5 h-5" />
                   <span>{dict["home.button.newStory"]}</span>
                 </Button>

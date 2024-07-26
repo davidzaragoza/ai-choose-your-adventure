@@ -12,6 +12,7 @@ import {
   StoryDescription,
 } from "./models/models";
 import { sql } from "@vercel/postgres";
+const isoCountriesLanguages = require("iso-countries-languages");
 
 const STORY_LENGTH_LIMIT = 8;
 
@@ -70,12 +71,15 @@ export async function getStory(id: string): Promise<Story | ErrorResponse> {
 
 export async function beginStory(
   title: string,
-  genre: string
+  genre: string,
+  lang: string
 ): Promise<string | ErrorResponse> {
   const session = await auth();
   if (!session) {
     return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
   }
+
+  var languageInSpanish = isoCountriesLanguages.getLanguage("es", lang);
 
   const messages: CoreMessage[] = [
     {
@@ -84,8 +88,9 @@ export async function beginStory(
             Vas a ir escribiendo la historia haciendo pausas presentando al usuario varias opciones sobre como seguirla.
             La historia debes escribirla en la variable story.
             Las opciones ponlas en la variable choices.
-            No escribas las opciones en la historia, solo en la variable choices.
-            Tampoco escribas en la variable story preguntas para el usuario, solo la historia.`,
+            Es muy importante que no escribas las opciones en la variable story, solo en la variable choices.
+            También es importante que no escribas preguntas para el usuario en la variable story, solo la historia.
+            La historia debes escribirla en el idioma "${languageInSpanish}"`,
     },
   ];
   const model = openai("gpt-4o-mini");
@@ -100,7 +105,8 @@ export async function beginStory(
   });
 
   const choices = toPostgresArray(object.choices);
-  let { rows } = await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`;
+  let { rows } =
+    await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW()) RETURNING *`;
   if (rows.length === 0) {
     return { message: "Error creating story", code: 500 };
   }
@@ -112,15 +118,18 @@ export async function beginStory(
 
 export async function getNextStoryPart(
   id: string,
-  choice: string
+  choice: string,
+  lang: string
 ): Promise<NextStoryPart | ErrorResponse> {
+  var languageInSpanish = isoCountriesLanguages.getLanguage("es", lang);
+
   const session = await auth();
   if (!session) {
     return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
   }
   let story = await getStoryAndParts(id, session.user?.email!);
   if (story.story.length > STORY_LENGTH_LIMIT) {
-    return getNextStoryPartAimingForEnd(story, choice);
+    return getNextStoryPartAimingForEnd(story, choice, languageInSpanish);
   }
 
   const currentStory = story.story.join("\n");
@@ -134,8 +143,9 @@ export async function getNextStoryPart(
             La historia debes escribirla en la variable story.
             Si la historia ha terminado, devuelve en la variable choices un array vacío.
             Las opciones ponlas en la variable choices.
-            No escribas las opciones en la historia, solo en la variable choices.
-            Tampoco escribas en la variable story preguntas para el usuario, solo la historia.`,
+            Es muy importante que no escribas las opciones en la variable story, solo en la variable choices.
+            También es importante que no escribas preguntas para el usuario en la variable story, solo la historia.
+            La historia debes escribirla en el idioma "${languageInSpanish}"`,
     },
     {
       role: "user",
@@ -166,7 +176,8 @@ export async function getNextStoryPart(
 
 export async function getNextStoryPartAimingForEnd(
   story: Story,
-  choice: string
+  choice: string,
+  languageInSpanish: string
 ): Promise<NextStoryPart | ErrorResponse> {
   const currentStory = story.story.join("\n");
 
@@ -181,7 +192,8 @@ export async function getNextStoryPartAimingForEnd(
             Si la historia ha terminado, devuelve en la variable choices un array vacío.
             Las opciones ponlas en la variable choices.
             No escribas las opciones en la historia, solo en la variable choices.
-            Tampoco escribas en la variable story preguntas para el usuario, solo la historia.`,
+            Tampoco escribas en la variable story preguntas para el usuario, solo la historia.
+            La historia debes escribirla en el idioma "${languageInSpanish}"`,
     },
     {
       role: "user",
