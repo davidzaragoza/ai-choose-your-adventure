@@ -21,6 +21,10 @@ async function main() {
     story_id integer references ai_choose_story.stories(id) ON DELETE CASCADE,
     part_text text
   )`;
+  await sql`CREATE TABLE ai_choose_story.translations (
+    language text primary key,
+    translations json
+  )`;
 }
 
 main();

@@ -1,15 +1,15 @@
-import { auth } from "@/auth"
+import { auth } from "@/auth";
+import { match } from '@formatjs/intl-localematcher';
+import Negotiator from 'negotiator';
 import { NextRequest, NextResponse } from "next/server";
-import { match } from '@formatjs/intl-localematcher'
-import Negotiator from 'negotiator'
+const isoCountriesLanguages = require("iso-countries-languages");
 
-const locales = ['en', 'es']
+const locales = isoCountriesLanguages.getSupportedLangs() as string[];
 
 // Get the preferred locale, similar to the above or using a library
 function getLocale(request: NextRequest) {
     const headers = { 'accept-language': request.headers.get('accept-language') || 'en-US,en;q=0.5' };
     const languages = new Negotiator({ headers }).languages()
-    const locales = ['en', 'es']
     return match(languages, locales, "en")
 }
 
