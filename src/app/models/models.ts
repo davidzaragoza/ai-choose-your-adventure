@@ -1,7 +1,7 @@
 export enum ErrorCodes {
-  NotAuthenticated = 0,
-  AlreadyLiked = 1,
-  StoryNotLiked = 2,
+  NotAuthenticated = 1,
+  AlreadyLiked = 2,
+  StoryNotLiked = 3,
 }
 
 export interface StoryDescription {
@@ -47,4 +47,9 @@ export interface NextStoryPart {
 export interface ErrorResponse {
   code: number;
   message: string;
+}
+
+export interface PublicStoryFilter {
+  genre: string | null;
+  lang: string | null;
 }

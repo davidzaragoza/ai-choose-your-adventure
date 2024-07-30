@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import { responseHaveError } from "@/lib/utils";
+import { getStoryGenres, responseHaveError } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -55,6 +55,8 @@ export function CreateStoryFormComponent({ dict, lang }: Props) {
   const [title, setTitle] = useState<string>("");
   const [genre, setGenre] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  const genres = getStoryGenres();
 
   async function handleSubmit() {
     if (!fieldsSet()) return;
@@ -110,12 +112,9 @@ export function CreateStoryFormComponent({ dict, lang }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="fiction">{dict["story.genre.fiction"]}</SelectItem>
-                    <SelectItem value="non-fiction">{dict["story.genre.non-fiction"]}</SelectItem>
-                    <SelectItem value="fantasy">{dict["story.genre.fantasy"]}</SelectItem>
-                    <SelectItem value="mystery">{dict["story.genre.mystery"]}</SelectItem>
-                    <SelectItem value="romance">{dict["story.genre.romance"]}</SelectItem>
-                    <SelectItem value="sci-fi">{dict["story.genre.sci-fi"]}</SelectItem>
+                    {genres.map((g) => (
+                      <SelectItem key={g} value={g}>{dict[`story.genre.${g}`]}</SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

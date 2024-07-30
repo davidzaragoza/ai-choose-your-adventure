@@ -31,3 +31,7 @@ export function responseHaveError(
   }
   return false;
 }
+
+export function getStoryGenres(): string[] {
+  return ["fiction", "non-fiction", "fantasy", "mystery", "romance", "sci-fi"];
+}

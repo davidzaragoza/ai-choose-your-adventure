@@ -24,17 +24,28 @@ import {
   getStories,
   updateStoryPublish,
 } from "@/app/actions";
-import { PublicStoryDescription, StoryDescription } from "@/app/models/models";
+import {
+  PublicStoryDescription,
+  PublicStoryFilter,
+  StoryDescription,
+} from "@/app/models/models";
 import { Button } from "@/components/ui/button";
-import { responseHaveError } from "@/lib/utils";
+import { getStoryGenres, responseHaveError } from "@/lib/utils";
 import { SelectTrigger } from "@radix-ui/react-select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
 import PublicStoryCardComponent from "./public-story-card-component";
 import StoryCardComponent from "./story-card-component";
-import { Select, SelectContent, SelectGroup, SelectItem } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectValue,
+} from "./ui/select";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
+import { SearchIcon } from "lucide-react";
 const isoCountriesLanguages = require("iso-countries-languages");
 
 interface Props {
@@ -47,10 +58,17 @@ export function HomeComponent({ dict, lang }: Props) {
 
   const [authError, setAuthError] = useState(false);
   const [stories, setStories] = useState<StoryDescription[]>();
-  const [publicStories, setPublicStories] = useState<PublicStoryDescription[]>();
+  const [publicStories, setPublicStories] =
+    useState<PublicStoryDescription[]>();
+  const [filterPublicLang, setFilterPublicLang] = useState<string | null>(null);
+  const [filterPublicGenre, setFilterPublicGenre] = useState<string | null>(
+    null
+  );
 
   const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
   const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
+
+  const genres = getStoryGenres();
 
   async function init() {
     const stories = await getStories();
@@ -58,7 +76,15 @@ export function HomeComponent({ dict, lang }: Props) {
       return;
     }
     setStories(stories as StoryDescription[]);
-    const publicStories = await getPublicStories();
+    await updatePublicStories();
+  }
+
+  async function updatePublicStories() {
+    const filter: PublicStoryFilter = {
+      lang: filterPublicLang,
+      genre: filterPublicGenre,
+    };
+    const publicStories = await getPublicStories(filter);
     setPublicStories(publicStories as PublicStoryDescription[]);
   }
 
@@ -182,6 +208,65 @@ export function HomeComponent({ dict, lang }: Props) {
           <h2 className="text-xl font-bold mb-2">
             {dict["home.public.stories"]}
           </h2>
+
+          <div className="max-w my-8">
+            <div className="bg-secondary rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold mb-4">Filtro</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label
+                    htmlFor="genre"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    {dict["story.genre"]}
+                  </label>
+                  <Select onValueChange={e => setFilterPublicGenre(e)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={dict["story.genre"]} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genres.map((g) => (
+                        <SelectItem key={g} value={g}>
+                          {dict[`story.genre.${g}`]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="language"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    {dict["story.lang"]}
+                  </label>
+                  <Select onValueChange={e => setFilterPublicLang(e)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={dict["story.lang"]} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allLanguages.map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {isoCountriesLanguages.getLanguage(lang, l)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Button
+                    variant="outline"
+                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    onClick={() => updatePublicStories()}
+                  >
+                    <SearchIcon className="w-5 h-5" />
+                    <span>{dict["home.button.search"]}</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {publicStories?.map((story) => (
               <PublicStoryCardComponent

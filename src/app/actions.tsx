@@ -10,6 +10,7 @@ import {
   ErrorResponse,
   NextStoryPart,
   PublicStoryDescription,
+  PublicStoryFilter,
   Story,
   StoryDescription,
 } from "./models/models";
@@ -77,11 +78,6 @@ export async function getStories(): Promise<
       likes: row.likes,
     };
   });
-}
-
-interface PublicStoryFilter {
-  genre?: string;
-  lang?: string;
 }
 
 export async function getPublicStories(
