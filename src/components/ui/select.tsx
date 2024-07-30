@@ -5,6 +5,41 @@ import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useState } from "react"
+
+// This is a solution to the issue of selection also invoking whatever is underneath the select content
+// Based off solution suggested here: https://github.com/radix-ui/primitives/issues/1658#issuecomment-1517705980
+const DelayedSelect: React.FC<React.PropsWithChildren<any>> = ({
+  children,
+  ...props
+}) => {
+  const [open, setOpen] = useState(false);
+  const [delayedOpen, setDelayedOpen] = useState(false);
+
+  const handleOpenChange = (
+    newOpenState: boolean | ((prevState: boolean) => boolean)
+  ) => {
+    if (newOpenState) {
+      setOpen(newOpenState);
+      setDelayedOpen(newOpenState);
+    } else {
+      setOpen(newOpenState);
+      setTimeout(() => {
+        setDelayedOpen(newOpenState);
+      }, 100);
+    }
+  };
+
+  return (
+    <SelectPrimitive.Root
+      open={delayedOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    >
+      {children}
+    </SelectPrimitive.Root>
+  );
+};
 
 const Select = SelectPrimitive.Root
 
@@ -147,6 +182,7 @@ const SelectSeparator = React.forwardRef<
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
 export {
+  DelayedSelect,
   Select,
   SelectGroup,
   SelectValue,

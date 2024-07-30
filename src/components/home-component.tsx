@@ -38,6 +38,7 @@ import { LoadingComponent } from "./loading-component";
 import PublicStoryCardComponent from "./public-story-card-component";
 import StoryCardComponent from "./story-card-component";
 import {
+  DelayedSelect,
   Select,
   SelectContent,
   SelectGroup,
@@ -133,7 +134,7 @@ export function HomeComponent({ dict, lang }: Props) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">{dict["home.stories"]}</h1>
         <div className="flex items-center gap-4">
-          <Select onValueChange={(e) => router.replace(`/${e}`)}>
+          <DelayedSelect onValueChange={(e: any) => router.replace(`/${e as string}`)}>
             <SelectTrigger>
               <span className={`fi fi-${lang}`}></span>
               <span className="ml-2">{currentLanguage}</span>
@@ -154,7 +155,7 @@ export function HomeComponent({ dict, lang }: Props) {
                 ))}
               </SelectGroup>
             </SelectContent>
-          </Select>
+          </DelayedSelect>
           <Button
             variant="ghost"
             className="rounded-full"
@@ -226,7 +227,7 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.genre"]}
                   </label>
-                  <Select onValueChange={(e) => setFilterPublicGenre(e)}>
+                  <DelayedSelect onValueChange={(e: any) => setFilterPublicGenre(e)}>
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.genre"]} />
                     </SelectTrigger>
@@ -237,7 +238,7 @@ export function HomeComponent({ dict, lang }: Props) {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </DelayedSelect>
                 </div>
                 <div>
                   <label
@@ -246,7 +247,7 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.lang"]}
                   </label>
-                  <Select onValueChange={(e) => setFilterPublicLang(e)}>
+                  <DelayedSelect onValueChange={(e: any) => setFilterPublicLang(e)}>
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.lang"]} />
                     </SelectTrigger>
@@ -259,7 +260,7 @@ export function HomeComponent({ dict, lang }: Props) {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </DelayedSelect>
                 </div>
                 <div>
                   <Button
