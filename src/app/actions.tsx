@@ -9,6 +9,7 @@ import {
   ErrorCodes,
   ErrorResponse,
   NextStoryPart,
+  PublicStoryDescription,
   Story,
   StoryDescription,
 } from "./models/models";
@@ -85,19 +86,59 @@ interface PublicStoryFilter {
 
 export async function getPublicStories(
   filter?: PublicStoryFilter
-): Promise<StoryDescription[] | ErrorResponse> {
-  const hasLang = filter && filter.lang
-  const hasGenre = filter && filter.genre
-  let rows: QueryResultRow[];
-  if (!hasLang && !hasGenre) {
-    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true ORDER BY last_updated DESC LIMIT 10`);
-  } else if (hasLang && hasGenre) {
-    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND lang = ${filter.lang} AND genre = ${filter.genre} ORDER BY last_updated DESC LIMIT 10`);
-  } else if (hasLang) {
-    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND lang = ${filter.lang} ORDER BY last_updated DESC LIMIT 10`);
-  } else {
-    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND genre = ${filter.genre} ORDER BY last_updated DESC LIMIT 10`);
+): Promise<PublicStoryDescription[] | ErrorResponse> {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
   }
+
+  const userId = session.user?.email!;
+  const hasLang = filter && filter.lang;
+  const hasGenre = filter && filter.genre;
+  let rows: QueryResultRow[];
+
+  if (!hasLang && !hasGenre) {
+    ({ rows } = await sql`
+      SELECT s.*, 
+             CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS "userLiked"
+      FROM ai_choose_story.stories s
+      LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
+      WHERE s.public = true
+      ORDER BY s.last_updated DESC
+      LIMIT 10
+    `);
+  } else if (hasLang && hasGenre) {
+    ({ rows } = await sql`
+      SELECT s.*, 
+             CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS "userLiked"
+      FROM ai_choose_story.stories s
+      LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
+      WHERE s.public = true AND s.lang = ${filter.lang} AND s.genre = ${filter.genre}
+      ORDER BY s.last_updated DESC
+      LIMIT 10
+    `);
+  } else if (hasLang) {
+    ({ rows } = await sql`
+      SELECT s.*, 
+             CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS "userLiked"
+      FROM ai_choose_story.stories s
+      LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
+      WHERE s.public = true AND s.lang = ${filter.lang}
+      ORDER BY s.last_updated DESC
+      LIMIT 10
+    `);
+  } else {
+    ({ rows } = await sql`
+      SELECT s.*, 
+             CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS "userLiked"
+      FROM ai_choose_story.stories s
+      LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
+      WHERE s.public = true AND s.genre = ${filter.genre}
+      ORDER BY s.last_updated DESC
+      LIMIT 10
+    `);
+  }
+
   return rows.map((row) => {
     return {
       id: row.id,
@@ -108,6 +149,7 @@ export async function getPublicStories(
       status: row.status,
       public: row.public,
       likes: row.likes,
+      userLiked: row.userLiked,
     };
   });
 }
@@ -284,4 +326,32 @@ export async function deleteStory(id: string) {
   }
 
   await sql`DELETE FROM ai_choose_story.stories WHERE id = ${id} and owner = ${session.user?.email}`;
+}
+
+export async function addStoryLike(id: string) {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
+  }
+  const { rows } = await sql`SELECT * FROM ai_choose_story.story_likes WHERE story_id = ${id} AND user_id = ${session.user?.email}`;
+  if (rows.length > 0) {
+    return { message: "User has already liked the story", code: ErrorCodes.AlreadyLiked };
+  }
+
+  await sql`INSERT INTO ai_choose_story.story_likes (story_id, user_id) VALUES (${id}, ${session.user?.email})`;
+  await sql`UPDATE ai_choose_story.stories SET likes = likes + 1 WHERE id = ${id}`;
+}
+
+export async function removeStoryLike(id: string) {
+  const session = await auth();
+  if (!session) {
+    return { message: "Not authenticated", code: ErrorCodes.NotAuthenticated };
+  }
+  const { rows } = await sql`SELECT * FROM ai_choose_story.story_likes WHERE story_id = ${id} AND user_id = ${session.user?.email}`;
+  if (rows.length === 0) {
+    return { message: "User has not liked the story", code: ErrorCodes.StoryNotLiked };
+  }
+
+  await sql`DELETE FROM ai_choose_story.story_likes WHERE story_id = ${id} AND user_id = ${session.user?.email}`;
+  await sql`UPDATE ai_choose_story.stories SET likes = likes - 1 WHERE id = ${id}`;  
 }

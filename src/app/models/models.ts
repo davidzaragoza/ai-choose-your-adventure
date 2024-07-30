@@ -1,5 +1,7 @@
 export enum ErrorCodes {
-  NotAuthenticated = 401,
+  NotAuthenticated = 0,
+  AlreadyLiked = 1,
+  StoryNotLiked = 2,
 }
 
 export interface StoryDescription {
@@ -11,6 +13,18 @@ export interface StoryDescription {
   status: string;
   public: boolean;
   likes: number;
+}
+
+export interface PublicStoryDescription {
+  id: string;
+  title: string;
+  genre: string;
+  lang: string;
+  lastUpdated: Date;
+  status: string;
+  public: boolean;
+  likes: number;
+  userLiked: boolean;
 }
 
 export interface Story {

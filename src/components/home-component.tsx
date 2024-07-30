@@ -24,29 +24,18 @@ import {
   getStories,
   updateStoryPublish,
 } from "@/app/actions";
-import { StoryDescription } from "@/app/models/models";
+import { PublicStoryDescription, StoryDescription } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { responseHaveError } from "@/lib/utils";
-import { Trash2Icon } from "lucide-react";
-import Link from "next/link";
+import { SelectTrigger } from "@radix-ui/react-select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import { Select, SelectContent, SelectGroup, SelectItem } from "./ui/select";
-import { SelectTrigger } from "@radix-ui/react-select";
-const isoCountriesLanguages = require("iso-countries-languages");
-import "/node_modules/flag-icons/css/flag-icons.min.css";
-import { Switch } from "./ui/switch";
-import { Label } from "./ui/label";
-import StoryCardComponent from "./story-card-component";
 import PublicStoryCardComponent from "./public-story-card-component";
+import StoryCardComponent from "./story-card-component";
+import { Select, SelectContent, SelectGroup, SelectItem } from "./ui/select";
+import "/node_modules/flag-icons/css/flag-icons.min.css";
+const isoCountriesLanguages = require("iso-countries-languages");
 
 interface Props {
   dict: any;
@@ -58,7 +47,7 @@ export function HomeComponent({ dict, lang }: Props) {
 
   const [authError, setAuthError] = useState(false);
   const [stories, setStories] = useState<StoryDescription[]>();
-  const [publicStories, setPublicStories] = useState<StoryDescription[]>();
+  const [publicStories, setPublicStories] = useState<PublicStoryDescription[]>();
 
   const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
   const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
@@ -70,7 +59,7 @@ export function HomeComponent({ dict, lang }: Props) {
     }
     setStories(stories as StoryDescription[]);
     const publicStories = await getPublicStories();
-    setPublicStories(publicStories as StoryDescription[]);
+    setPublicStories(publicStories as PublicStoryDescription[]);
   }
 
   useEffect(() => {
@@ -179,6 +168,7 @@ export function HomeComponent({ dict, lang }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stories.map((story) => (
               <StoryCardComponent
+                key={story.id}
                 dict={dict}
                 lang={lang}
                 story={story}
@@ -195,6 +185,7 @@ export function HomeComponent({ dict, lang }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {publicStories?.map((story) => (
               <PublicStoryCardComponent
+                key={story.id}
                 dict={dict}
                 lang={lang}
                 story={story}

@@ -29,6 +29,10 @@ async function main() {
     language text primary key,
     translations json
   )`;
+  await sql`CREATE TABLE ai_choose_story.story_likes (
+    story_id integer references ai_choose_story.stories(id) ON DELETE CASCADE,
+    user_id text
+  )`;
 }
 
 main();
