@@ -6,6 +6,7 @@ export interface StoryDescription {
   id: string;
   title: string;
   genre: string;
+  lang: string;
   lastUpdated: Date;
   status: string;
   public: boolean;
@@ -16,6 +17,7 @@ export interface Story {
   id: string;
   title: string;
   genre: string;
+  lang: string;
   story: string[];
   choices: string[];
   status: string;

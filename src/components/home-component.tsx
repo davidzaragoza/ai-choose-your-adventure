@@ -187,6 +187,10 @@ export function HomeComponent({ dict, lang }: Props) {
                       {dict[`story.genre.${story.genre}`]}
                     </div>
                     <div className="text-sm text-muted-foreground">
+                      {dict[`story.lang`]}:{" "}
+                      {isoCountriesLanguages.getLanguage(lang, story.lang)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
                       {story.status === "IN_PROGRESS" ? dict["home.card.updated"] : dict["story.status.finished"]}:{" "}
                       {story.lastUpdated.toUTCString()}
                     </div>

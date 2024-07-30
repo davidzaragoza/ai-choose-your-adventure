@@ -54,6 +54,7 @@ const ENGLISH = {
   "home.loading.title": "Loading Stories",
   "home.loading.message": "Please wait while we fetch the stories",
   "home.story.published": "Published",
+  "story.lang": "Language",
   "story.genre": "Genre",
   "story.genre.fiction": "Fiction",
   "story.genre.non-fiction": "Non-Fiction",

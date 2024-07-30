@@ -12,6 +12,7 @@ async function main() {
     id serial primary key,
     title text,
     genre text,
+    lang text,
     choices text[],
     owner text,
     last_updated timestamp,

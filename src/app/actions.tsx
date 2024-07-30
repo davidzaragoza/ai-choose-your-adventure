@@ -31,6 +31,7 @@ async function getStoryAndParts(id: string, owner: string) {
     id: rows[0].id,
     title: rows[0].title,
     genre: rows[0].genre,
+    lang: rows[0].lang,
     story: [],
     choices: rows[0].choices,
     status: rows[0].status,
@@ -68,6 +69,7 @@ export async function getStories(): Promise<
       id: row.id,
       title: row.title,
       genre: row.genre,
+      lang: row.lang,
       lastUpdated: row.last_updated,
       status: row.status,
       public: row.public,
@@ -123,7 +125,7 @@ export async function beginStory(
   const choices = toPostgresArray(object.choices);
 
   let { rows } =
-    await sql`INSERT INTO ai_choose_story.stories (title, genre, choices, owner, last_updated, status) VALUES (${title}, ${genre}, ${choices}, ${session.user?.email}, NOW(), ${status}) RETURNING *`;
+    await sql`INSERT INTO ai_choose_story.stories (title, genre, lang, choices, owner, last_updated, status) VALUES (${title}, ${genre}, ${lang}, ${choices}, ${session.user?.email}, NOW(), ${status}) RETURNING *`;
   if (rows.length === 0) {
     return { message: "Error creating story", code: 500 };
   }
@@ -158,7 +160,7 @@ export async function getNextStoryPart(
             La historia hasta este momento es la siguiente: "${currentStory}".
             Vas a seguir desarrollando la historia teniendo en cuenta la opción que ha elegido el usuario para continuar, haciendo pausas presentando al usuario varias opciones sobre como seguirla.
             La historia debes escribirla en la variable story.
-            Si la historia ha terminado, devuelve en la variable choices un array vacío.
+            Si la historia ha terminado, devuelve en la variable choices un array vacío. No tengas miedo en castigar al usuario si ha escogido una mala opción.
             Las opciones ponlas en la variable choices.
             Es muy importante que no escribas las opciones en la variable story, solo en la variable choices.
             También es importante que no escribas preguntas para el usuario en la variable story, solo la historia.
@@ -208,7 +210,7 @@ export async function getNextStoryPartAimingForEnd(
             Vas a seguir desarrollando la historia llevandola hacia un final teniendo en cuenta la opción que ha elegido el usuario para continuar, haciendo pausas presentando al usuario varias opciones sobre como seguirla.
             Debes hacer que la historia termine en las próximas iteraciones.
             La historia debes escribirla en la variable story.
-            Si la historia ha terminado, devuelve en la variable choices un array vacío.
+            Si la historia ha terminado, devuelve en la variable choices un array vacío. No tengas miedo en castigar al usuario si ha escogido una mala opción.
             Las opciones ponlas en la variable choices.
             No escribas las opciones en la historia, solo en la variable choices.
             Tampoco escribas en la variable story preguntas para el usuario, solo la historia.
