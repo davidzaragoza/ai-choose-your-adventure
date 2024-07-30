@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { openai } from "@ai-sdk/openai";
-import { sql } from "@vercel/postgres";
+import { QueryResultRow, sql } from "@vercel/postgres";
 import { CoreMessage, generateObject } from "ai";
 import { z } from "zod";
 import {
@@ -22,7 +22,7 @@ function toPostgresArray(arr: string[]): string {
 
 async function getStoryAndParts(id: string, owner: string) {
   let { rows } =
-    await sql`SELECT * FROM ai_choose_story.stories WHERE id = ${id} AND owner = ${owner}`;
+    await sql`SELECT * FROM ai_choose_story.stories WHERE id = ${id} AND (owner = ${owner} OR public = true)`;
   if (rows.length === 0) {
     throw new Error("Story not found");
   }
@@ -64,6 +64,40 @@ export async function getStories(): Promise<
   }
   const { rows } =
     await sql`SELECT * FROM ai_choose_story.stories WHERE owner = ${session.user?.email} ORDER BY last_updated DESC`;
+  return rows.map((row) => {
+    return {
+      id: row.id,
+      title: row.title,
+      genre: row.genre,
+      lang: row.lang,
+      lastUpdated: row.last_updated,
+      status: row.status,
+      public: row.public,
+      likes: row.likes,
+    };
+  });
+}
+
+interface PublicStoryFilter {
+  genre?: string;
+  lang?: string;
+}
+
+export async function getPublicStories(
+  filter?: PublicStoryFilter
+): Promise<StoryDescription[] | ErrorResponse> {
+  const hasLang = filter && filter.lang
+  const hasGenre = filter && filter.genre
+  let rows: QueryResultRow[];
+  if (!hasLang && !hasGenre) {
+    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true ORDER BY last_updated DESC LIMIT 10`);
+  } else if (hasLang && hasGenre) {
+    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND lang = ${filter.lang} AND genre = ${filter.genre} ORDER BY last_updated DESC LIMIT 10`);
+  } else if (hasLang) {
+    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND lang = ${filter.lang} ORDER BY last_updated DESC LIMIT 10`);
+  } else {
+    ({ rows } = await sql`SELECT * FROM ai_choose_story.stories WHERE public = true AND genre = ${filter.genre} ORDER BY last_updated DESC LIMIT 10`);
+  }
   return rows.map((row) => {
     return {
       id: row.id,
@@ -121,7 +155,7 @@ export async function beginStory(
     messages: messages,
   });
 
-  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS";
   const choices = toPostgresArray(object.choices);
 
   let { rows } =
@@ -182,7 +216,7 @@ export async function getNextStoryPart(
     messages: messages,
   });
 
-  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS";
 
   await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
@@ -231,7 +265,7 @@ export async function getNextStoryPartAimingForEnd(
     }),
     messages: messages,
   });
-  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS"
+  const status = object.choices.length === 0 ? "FINISHED" : "IN_PROGRESS";
   await sql`INSERT INTO ai_choose_story.story_parts (story_id, part_text) VALUES (${story.id}, ${object.story}) RETURNING part_id`;
   await sql`UPDATE ai_choose_story.stories SET choices = ${toPostgresArray(
     object.choices

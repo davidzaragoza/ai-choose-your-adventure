@@ -18,7 +18,12 @@ To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
-import { deleteStory, getStories, updateStoryPublish } from "@/app/actions";
+import {
+  deleteStory,
+  getPublicStories,
+  getStories,
+  updateStoryPublish,
+} from "@/app/actions";
 import { StoryDescription } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,18 +39,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectValue,
-} from "./ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem } from "./ui/select";
 import { SelectTrigger } from "@radix-ui/react-select";
 const isoCountriesLanguages = require("iso-countries-languages");
 import "/node_modules/flag-icons/css/flag-icons.min.css";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
+import StoryCardComponent from "./story-card-component";
+import PublicStoryCardComponent from "./public-story-card-component";
 
 interface Props {
   dict: any;
@@ -57,6 +58,7 @@ export function HomeComponent({ dict, lang }: Props) {
 
   const [authError, setAuthError] = useState(false);
   const [stories, setStories] = useState<StoryDescription[]>();
+  const [publicStories, setPublicStories] = useState<StoryDescription[]>();
 
   const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
   const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
@@ -67,6 +69,8 @@ export function HomeComponent({ dict, lang }: Props) {
       return;
     }
     setStories(stories as StoryDescription[]);
+    const publicStories = await getPublicStories();
+    setPublicStories(publicStories as StoryDescription[]);
   }
 
   useEffect(() => {
@@ -110,12 +114,10 @@ export function HomeComponent({ dict, lang }: Props) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">{dict["home.stories"]}</h1>
         <div className="flex items-center gap-4">
-          <Select onValueChange={(e) => router.replace(`/${e}`)} >
+          <Select onValueChange={(e) => router.replace(`/${e}`)}>
             <SelectTrigger>
               <span className={`fi fi-${lang}`}></span>
-              <span className="ml-2">
-                {currentLanguage}
-              </span>
+              <span className="ml-2">{currentLanguage}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -176,59 +178,32 @@ export function HomeComponent({ dict, lang }: Props) {
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stories.map((story) => (
-              <Link key={story.id} href={`${lang}/story/${story.id}`}>
-                <Card key={story.id} className={story.status === "IN_PROGRESS" ? "bg-card" : "bg-secondary"}>
-                  <CardHeader>
-                    <CardTitle>{story.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground">
-                      {dict[`story.genre`]}:{" "}
-                      {dict[`story.genre.${story.genre}`]}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {dict[`story.lang`]}:{" "}
-                      {isoCountriesLanguages.getLanguage(lang, story.lang)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {story.status === "IN_PROGRESS" ? dict["home.card.updated"] : dict["story.status.finished"]}:{" "}
-                      {story.lastUpdated.toUTCString()}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="grid grid-cols-2 w-full">
-                      <div className="flex w-full">
-                        {story.status === "FINISHED" && (
-                          <div className="flex items-center space-x-2">
-                            <Switch id="published-mode" checked={story.public} onClick={(e) => {
-                              e.preventDefault()
-                              updateStory(story.id, !story.public )
-                            }} />
-                            <Label htmlFor="published-mode">{dict["home.story.published"]}</Label>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex justify-end w-full">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            removeStory(story.id);
-                          }}
-                        >
-                          <Trash2Icon className="w-5 h-5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Link>
+              <StoryCardComponent
+                dict={dict}
+                lang={lang}
+                story={story}
+                callbackRemoveStory={removeStory}
+                callbackUpdateStory={updateStory}
+              />
             ))}
           </div>
         </div>
-      </main >
-    </div >
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-2">
+            {dict["home.public.stories"]}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {publicStories?.map((story) => (
+              <PublicStoryCardComponent
+                dict={dict}
+                lang={lang}
+                story={story}
+              />
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
 

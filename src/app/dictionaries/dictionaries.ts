@@ -45,6 +45,7 @@ const isoCountriesLanguages = require("iso-countries-languages");
 
 const ENGLISH = {
   "home.stories": "My Stories",
+  "home.public.stories": "Public Stories",
   "home.noStories.header": "You have not created any stories",
   "home.noStories.desc":
     "It looks like you haven't created any stories yet. You can create a new story to get started.",

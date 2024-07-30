@@ -64,7 +64,11 @@ export function StoryComponent({ id, dict, lang }: Props) {
     setTitle(response.title);
     setStory(response.story);
     setChoices(response.choices);
-    setCurrentPage(response.story.length - 1);
+    if (response.status === "FINISHED") {
+      setCurrentPage(0);
+    } else {
+      setCurrentPage(response.story.length - 1);
+    }
     setLoading(false);
   }
 
