@@ -35,3 +35,7 @@ export function responseHaveError(
 export function getStoryGenres(): string[] {
   return ["fiction", "non-fiction", "fantasy", "mystery", "romance", "sci-fi"];
 }
+
+export function isBlank(str: string | null | undefined): boolean {
+  return !str || /^\s*$/.test(str);
+}

@@ -30,7 +30,7 @@ import {
   StoryDescription,
 } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
-import { getStoryGenres, responseHaveError } from "@/lib/utils";
+import { getStoryGenres, responseHaveError, isBlank } from "@/lib/utils";
 import { SelectTrigger } from "@radix-ui/react-select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,6 +48,8 @@ import "/node_modules/flag-icons/css/flag-icons.min.css";
 import { SearchIcon } from "lucide-react";
 const isoCountriesLanguages = require("iso-countries-languages");
 
+const PAGE_SIZE = 10;
+
 interface Props {
   dict: any;
   lang: string;
@@ -64,6 +66,7 @@ export function HomeComponent({ dict, lang }: Props) {
   const [filterPublicGenre, setFilterPublicGenre] = useState<string | null>(
     null
   );
+  const [publicCurrentPage, setPublicCurrentPage] = useState(0);
 
   const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
   const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
@@ -86,6 +89,7 @@ export function HomeComponent({ dict, lang }: Props) {
     };
     const publicStories = await getPublicStories(filter);
     setPublicStories(publicStories as PublicStoryDescription[]);
+    setPublicCurrentPage(0);
   }
 
   useEffect(() => {
@@ -141,7 +145,9 @@ export function HomeComponent({ dict, lang }: Props) {
                     <div className="flex items-center">
                       <span className={`fi fi-${l}`}></span>
                       <span className="ml-2">
-                        {isoCountriesLanguages.getLanguage(lang, l)}
+                        {isBlank(isoCountriesLanguages.getLanguage(lang, l))
+                          ? l
+                          : isoCountriesLanguages.getLanguage(lang, l)}
                       </span>
                     </div>
                   </SelectItem>
@@ -220,7 +226,7 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.genre"]}
                   </label>
-                  <Select onValueChange={e => setFilterPublicGenre(e)}>
+                  <Select onValueChange={(e) => setFilterPublicGenre(e)}>
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.genre"]} />
                     </SelectTrigger>
@@ -240,14 +246,16 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.lang"]}
                   </label>
-                  <Select onValueChange={e => setFilterPublicLang(e)}>
+                  <Select onValueChange={(e) => setFilterPublicLang(e)}>
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.lang"]} />
                     </SelectTrigger>
                     <SelectContent>
                       {allLanguages.map((l) => (
                         <SelectItem key={l} value={l}>
-                          {isoCountriesLanguages.getLanguage(lang, l)}
+                          {isBlank(isoCountriesLanguages.getLanguage(lang, l))
+                            ? l
+                            : isoCountriesLanguages.getLanguage(lang, l)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -299,26 +307,6 @@ function PlusIcon(props: any) {
     >
       <path d="M5 12h14" />
       <path d="M12 5v14" />
-    </svg>
-  );
-}
-
-function XIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
     </svg>
   );
 }

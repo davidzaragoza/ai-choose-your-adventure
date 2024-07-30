@@ -100,7 +100,7 @@ export async function getPublicStories(
       FROM ai_choose_story.stories s
       LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
       WHERE s.public = true
-      ORDER BY s.last_updated DESC
+      ORDER BY (s.likes, s.last_updated) DESC
       LIMIT 10
     `);
   } else if (hasLang && hasGenre) {
@@ -110,7 +110,7 @@ export async function getPublicStories(
       FROM ai_choose_story.stories s
       LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
       WHERE s.public = true AND s.lang = ${filter.lang} AND s.genre = ${filter.genre}
-      ORDER BY s.last_updated DESC
+      ORDER BY (s.likes, s.last_updated) DESC
       LIMIT 10
     `);
   } else if (hasLang) {
@@ -120,7 +120,7 @@ export async function getPublicStories(
       FROM ai_choose_story.stories s
       LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
       WHERE s.public = true AND s.lang = ${filter.lang}
-      ORDER BY s.last_updated DESC
+      ORDER BY (s.likes, s.last_updated) DESC
       LIMIT 10
     `);
   } else {
@@ -130,7 +130,7 @@ export async function getPublicStories(
       FROM ai_choose_story.stories s
       LEFT JOIN ai_choose_story.story_likes l ON s.id = l.story_id AND l.user_id = ${userId}
       WHERE s.public = true AND s.genre = ${filter.genre}
-      ORDER BY s.last_updated DESC
+      ORDER BY (s.likes, s.last_updated) DESC
       LIMIT 10
     `);
   }
