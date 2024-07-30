@@ -52,4 +52,11 @@ export interface ErrorResponse {
 export interface PublicStoryFilter {
   genre: string | null;
   lang: string | null;
+  offset: number;
+  limit: number;
+}
+
+export interface PaginatedResponse<T> {
+  total: number;
+  content: T[];
 }

@@ -25,6 +25,7 @@ import {
   updateStoryPublish,
 } from "@/app/actions";
 import {
+  PaginatedResponse,
   PublicStoryDescription,
   PublicStoryFilter,
   StoryDescription,
@@ -47,9 +48,19 @@ import {
 } from "./ui/select";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
 import { SearchIcon } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./ui/pagination";
+import { set } from "zod";
 const isoCountriesLanguages = require("iso-countries-languages");
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 1;
 
 interface Props {
   dict: any;
@@ -67,7 +78,13 @@ export function HomeComponent({ dict, lang }: Props) {
   const [filterPublicGenre, setFilterPublicGenre] = useState<string | null>(
     null
   );
+  const [filterPublicLangForm, setFilterPublicLangForm] = useState<string | null>(null);
+  const [filterPublicGenreForm, setFilterPublicGenreForm] = useState<string | null>(
+    null
+  );
+
   const [publicCurrentPage, setPublicCurrentPage] = useState(0);
+  const [publicTotalPages, setPublicTotalPages] = useState(0);
 
   const currentLanguage = isoCountriesLanguages.getLanguage(lang, lang);
   const allLanguages = isoCountriesLanguages.getSupportedLangs() as string[];
@@ -80,17 +97,46 @@ export function HomeComponent({ dict, lang }: Props) {
       return;
     }
     setStories(stories as StoryDescription[]);
-    await updatePublicStories();
+    await updatePublicStories(0);
   }
 
-  async function updatePublicStories() {
+  async function updatePublicStoriesUsingForm() {
+    setFilterPublicLang(filterPublicLangForm);
+    setFilterPublicGenre(filterPublicGenreForm);
+    const filter: PublicStoryFilter = {
+      lang: filterPublicLangForm,
+      genre: filterPublicGenreForm,
+      offset: 0,
+      limit: PAGE_SIZE,
+    };
+    const publicStories = await getPublicStories(filter);
+    if (responseHaveError(stories, setAuthError)) {
+      return;
+    }
+    const pagedStories =
+      publicStories as PaginatedResponse<PublicStoryDescription>;
+    setPublicStories(pagedStories.content as PublicStoryDescription[]);
+    setPublicCurrentPage(0);
+    setPublicTotalPages(Math.ceil(pagedStories.total / PAGE_SIZE));
+  }
+
+
+  async function updatePublicStories(page: number) {
     const filter: PublicStoryFilter = {
       lang: filterPublicLang,
       genre: filterPublicGenre,
+      offset: page * PAGE_SIZE,
+      limit: PAGE_SIZE,
     };
     const publicStories = await getPublicStories(filter);
-    setPublicStories(publicStories as PublicStoryDescription[]);
-    setPublicCurrentPage(0);
+    if (responseHaveError(stories, setAuthError)) {
+      return;
+    }
+    const pagedStories =
+      publicStories as PaginatedResponse<PublicStoryDescription>;
+    setPublicStories(pagedStories.content as PublicStoryDescription[]);
+    setPublicCurrentPage(page);
+    setPublicTotalPages(Math.ceil(pagedStories.total / PAGE_SIZE));
   }
 
   useEffect(() => {
@@ -134,7 +180,9 @@ export function HomeComponent({ dict, lang }: Props) {
       <header className="bg-primary text-primary-foreground py-4 px-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">{dict["home.stories"]}</h1>
         <div className="flex items-center gap-4">
-          <DelayedSelect onValueChange={(e: any) => router.replace(`/${e as string}`)}>
+          <DelayedSelect
+            onValueChange={(e: any) => router.replace(`/${e as string}`)}
+          >
             <SelectTrigger>
               <span className={`fi fi-${lang}`}></span>
               <span className="ml-2">{currentLanguage}</span>
@@ -227,7 +275,9 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.genre"]}
                   </label>
-                  <DelayedSelect onValueChange={(e: any) => setFilterPublicGenre(e)}>
+                  <DelayedSelect
+                    onValueChange={(e: any) => setFilterPublicGenreForm(e)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.genre"]} />
                     </SelectTrigger>
@@ -247,7 +297,9 @@ export function HomeComponent({ dict, lang }: Props) {
                   >
                     {dict["story.lang"]}
                   </label>
-                  <DelayedSelect onValueChange={(e: any) => setFilterPublicLang(e)}>
+                  <DelayedSelect
+                    onValueChange={(e: any) => setFilterPublicLangForm(e)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={dict["story.lang"]} />
                     </SelectTrigger>
@@ -266,7 +318,7 @@ export function HomeComponent({ dict, lang }: Props) {
                   <Button
                     variant="outline"
                     className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    onClick={() => updatePublicStories()}
+                    onClick={() => updatePublicStoriesUsingForm()}
                   >
                     <SearchIcon className="w-5 h-5" />
                     <span>{dict["home.button.search"]}</span>
@@ -285,6 +337,35 @@ export function HomeComponent({ dict, lang }: Props) {
                 story={story}
               />
             ))}
+          </div>
+          <div className="mt-6">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => updatePublicStories(publicCurrentPage - 1)}                    
+                    isActive={publicCurrentPage === 0}
+                  />
+                </PaginationItem>
+                {[...Array(publicTotalPages)].map((_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      onClick={() => updatePublicStories(index)}
+                      isActive={publicCurrentPage === index}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={() => updatePublicStories(publicCurrentPage + 1)}
+                    isActive={publicCurrentPage === publicTotalPages - 1}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </main>
