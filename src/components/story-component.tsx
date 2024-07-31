@@ -34,7 +34,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
-import TextToSpeechComponent from "./text-to-speech-component";
 
 interface Props {
   id: string;
