@@ -13,15 +13,15 @@ Choose Your Adventure is a web application that allows users to create, share, a
 
 The project is built using Next.js, TypeScript, and various UI components from Radix UI.
 
-The project is currently deployed here: [Choose Your Story](https://dz-choose-your-story.vercel.app/)
+The project is currently deployed here: [Choose Your Adventure](https://dz-choose-your-adventure.vercel.app/)
 
 
 ## Installation
 
 ### Clone the repository
 ```sh
-git clone https://github.com/yourusername/choose-your-adventure.git
-cd choose-your-adventure
+git clone https://github.com/davidzaragoza/ai-choose-your-adventure.git
+cd ai-choose-your-adventure
 ```
 
 ### Install dependencies:

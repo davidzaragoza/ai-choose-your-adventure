@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Choose your story",
+  title: "Choose your adventure",
   description: "Create stories with different paths and choices with AI",
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="es">
+    <html lang="en">
       <body className={inter.className}>{children}</body>
     </html>
   );
