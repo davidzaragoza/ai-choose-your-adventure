@@ -45,14 +45,14 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious
+  PaginationPrevious,
 } from "./ui/pagination";
 import {
   DelayedSelect,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectValue
+  SelectValue,
 } from "./ui/select";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
 const isoCountriesLanguages = require("iso-countries-languages");
@@ -75,10 +75,12 @@ export function HomeComponent({ dict, lang }: Props) {
   const [filterPublicGenre, setFilterPublicGenre] = useState<string | null>(
     null
   );
-  const [filterPublicLangForm, setFilterPublicLangForm] = useState<string | null>(null);
-  const [filterPublicGenreForm, setFilterPublicGenreForm] = useState<string | null>(
-    null
-  );
+  const [filterPublicLangForm, setFilterPublicLangForm] = useState<
+    string | null
+  >(null);
+  const [filterPublicGenreForm, setFilterPublicGenreForm] = useState<
+    string | null
+  >(null);
 
   const [publicCurrentPage, setPublicCurrentPage] = useState(0);
   const [publicTotalPages, setPublicTotalPages] = useState(0);
@@ -116,7 +118,6 @@ export function HomeComponent({ dict, lang }: Props) {
     setPublicCurrentPage(0);
     setPublicTotalPages(Math.ceil(pagedStories.total / PAGE_SIZE));
   }
-
 
   async function updatePublicStories(page: number) {
     const filter: PublicStoryFilter = {
@@ -340,8 +341,11 @@ export function HomeComponent({ dict, lang }: Props) {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => updatePublicStories(publicCurrentPage - 1)}                    
-                    isActive={publicCurrentPage === 0}
+                    onClick={() => {
+                      if (publicCurrentPage > 0)
+                        updatePublicStories(publicCurrentPage - 1);
+                    }}
+                    isActive={publicCurrentPage > 0}
                   />
                 </PaginationItem>
                 {[...Array(publicTotalPages)].map((_, index) => (
@@ -356,9 +360,11 @@ export function HomeComponent({ dict, lang }: Props) {
                 ))}
                 <PaginationItem>
                   <PaginationNext
-                    href="#"
-                    onClick={() => updatePublicStories(publicCurrentPage + 1)}
-                    isActive={publicCurrentPage === publicTotalPages - 1}
+                    onClick={() => {
+                      if (publicCurrentPage < publicTotalPages - 1)
+                        updatePublicStories(publicCurrentPage + 1);
+                    }}
+                    isActive={publicCurrentPage < publicTotalPages - 1}
                   />
                 </PaginationItem>
               </PaginationContent>

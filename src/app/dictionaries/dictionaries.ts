@@ -140,10 +140,8 @@ export async function getDictionary(lang: string) {
     if (isoCountriesLanguages.getSupportedLangs().includes(lang)) {
       var languageInPostgres = await getDictionaryFromPostgres(lang);
       if (languageInPostgres) {
-        console.log("found in postgres", languageInPostgres)
         return languageInPostgres;
       }
-      console.log("not found in postgres")
       var languageInEnglish = isoCountriesLanguages.getLanguage("en", lang);
       const dictionaryFromAI = await getDictionaryFromAI(languageInEnglish);
       await saveDictionary(lang, dictionaryFromAI)

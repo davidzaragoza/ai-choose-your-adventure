@@ -9,9 +9,11 @@
 
 # Choose Your Adventure
 
-Choose Your Adventure is a web application that allows users to create, share, and explore interactive stories using the Vercel AI SDK to generate them.
+Choose Your Adventure is a web application that allows users to create, share, and explore interactive stories using AI to generate them.
 
 The project is built using Next.js, TypeScript, and various UI components from Radix UI.
+
+The project uses Vercel AI SDK to create the stories and to translate the web to different languages.
 
 The project is currently deployed here: [Choose Your Adventure](https://dz-choose-your-adventure.vercel.app/)
 
