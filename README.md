@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Table of Contents
+- [Choose Your Adventure](#choose-your-adventure)
+  - [Installation](#installation)
+    - [Clone the repository](#clone-the-repository)
+    - [Install dependencies:](#install-dependencies)
+    - [Set up environment variables](#set-up-environment-variables)
+    - [Initialize Database](#initialize-database)
+    - [Run](#run)
 
-## Getting Started
+# Choose Your Adventure
 
-First, run the development server:
+Choose Your Adventure is a web application that allows users to create, share, and explore interactive stories using the Vercel AI SDK to generate them.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The project is built using Next.js, TypeScript, and various UI components from Radix UI.
+
+The project is currently deployed here: [Choose Your Story](https://dz-choose-your-story.vercel.app/)
+
+
+## Installation
+
+### Clone the repository
+```sh
+git clone https://github.com/yourusername/choose-your-adventure.git
+cd choose-your-adventure
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install dependencies:
+```sh
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Set up environment variables
+This project requires several environment variables to be set in the `.env.local` file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```sh
+OPENAI_API_KEY=your_openai_api_key_here
 
-## Learn More
+AUTH_SECRET=your_auth_secret_here
+AUTH_GOOGLE_SECRET=your_google_oauth_client_secret_here
+AUTH_GOOGLE_ID=your_google_oauth_client_id_here
 
-To learn more about Next.js, take a look at the following resources:
+POSTGRES_URL="your_postgres_connection_url_here"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In order that google sign in works, you have to add this callback in project credentials:
+http://localhost:3000/api/auth/callback/google
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+And this authored origin for javascript: http://localhost:3000
 
-## Deploy on Vercel
+### Initialize Database
+After setting the environment variables, execute the following command to initialize the database
+```sh
+npm run seed
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Run
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+To start the server, run:
+```sh
+npm run dev

@@ -31,36 +31,33 @@ import {
   StoryDescription,
 } from "@/app/models/models";
 import { Button } from "@/components/ui/button";
-import { getStoryGenres, responseHaveError, isBlank } from "@/lib/utils";
+import { getStoryGenres, isBlank, responseHaveError } from "@/lib/utils";
 import { SelectTrigger } from "@radix-ui/react-select";
+import { SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingComponent } from "./loading-component";
 import PublicStoryCardComponent from "./public-story-card-component";
 import StoryCardComponent from "./story-card-component";
 import {
-  DelayedSelect,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectValue,
-} from "./ui/select";
-import "/node_modules/flag-icons/css/flag-icons.min.css";
-import { SearchIcon } from "lucide-react";
-import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from "./ui/pagination";
-import { set } from "zod";
+import {
+  DelayedSelect,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectValue
+} from "./ui/select";
+import "/node_modules/flag-icons/css/flag-icons.min.css";
 const isoCountriesLanguages = require("iso-countries-languages");
 
-const PAGE_SIZE = 1;
+const PAGE_SIZE = 9;
 
 interface Props {
   dict: any;
